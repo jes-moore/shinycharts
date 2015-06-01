@@ -30,26 +30,16 @@ shinyServer(function(input, output,session){
                 close <- as.vector(Cl(x))
                 #Then build the data frame
                 xSubset <-data.frame('date'=date,'open'=open,'high'= high,'low'=low,'close'=close)
-                #We want to construct our candlesticks  
-                xSubset$candleLower <- pmin(xSubset$open, xSubset$close)
-                xSubset$candleMiddle <- NA
-                xSubset$candleUpper <- pmax(xSubset$open, xSubset$close)
-                xSubset$fill <- ''
-                xSubset$fill[xSubset$open < xSubset$close] = 'white'
-                xSubset$fill[xSubset$fill ==''] = 'red'
-                #Add Moving Averages
-                xSubset$ma200 <- SMA(xSubset$close, 200)
-                xSubset$ma50 <- SMA(xSubset$close, 50)
                 xSubset})
         
-        
+      
         cutdata <- reactive({
                 x <- input_data()
                 startdate <- as.Date(as.Date("1970-01-01") + days(input$dates[1]))
                 enddate <- as.Date(as.Date("1970-01-01") + days(input$dates[2]))
                 cutdata <- x[(x$date >= startdate) & (x$date <= enddate),]              
         })
-
+        
         cutdata%>%
                 ggvis(x = ~date,y = ~close) %>%
                 layer_lines(stroke := "darkorange", strokeWidth := 1)%>%
