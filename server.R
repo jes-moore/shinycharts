@@ -44,19 +44,31 @@ shinyServer(function(input, output,session){
                 startdate <- as.Date(as.Date("1970-01-01") + days(input$dates[1]))
                 enddate <- as.Date(as.Date("1970-01-01") + days(input$dates[2]))
                 x$MA <- SMA(x = x$close,n=input$smaval)
-                cutdata <- x[(x$date >= startdate) & (x$date <= enddate),]              
+                x$EMA <- EMA(x = x$close,n=input$emaval)
+                boll <- BBands(HLC = x[,c(3,4,5)],n = input$bollval)
+                x <- cbind(x,boll)
+                cutdata <- x[(x$date >= startdate) & (x$date <= enddate),]
         })
-        
-        
+
         
         cutdata%>%
                 ggvis(x = ~date,y = ~close) %>%
-                layer_lines(stroke := "darkorange", strokeWidth := 1)%>%
-                layer_lines(x = ~date,y = ~ MA)%>%
+                layer_lines(x = ~date,y = ~ MA, stroke = "MA")%>%
+                layer_lines(x = ~date,y = ~ EMA,stroke = "EMA")%>%
+                layer_lines(stroke := "grey", strokeWidth := 2)%>%
+                #layer_lines(y = ~ mavg, stroke := "red", strokeWidth := 1.5)%>%
+                layer_lines(y = ~ up, stroke := "red", strokeWidth := 1.5)%>%
+                layer_lines(y = ~ dn, stroke := "red", strokeWidth := 1.5)%>%
+                #layer_ribbons(y = ~close, fill := "blue",fillOpacity := 0.5, y2 = min(close)) %>%
+                #scale_nominal("stroke",range = c("red","red","red"))
+                #add_legend("stroke")%>%
                 add_axis("x",title = "",title_offset = -10 ,properties = axis_props(labels = list(angle = -90, align = "right")))%>%
                 scale_datetime("x",round = TRUE,expand = c(0,0),label = NULL,clamp = TRUE)%>%
                 scale_numeric("y",label = "Share Price",expand = c(0.01,0.1),)%>%
+                set_options(height = 300, width = 700)%>%
                 bind_shiny("ggvis","ggvis_ui")
+
+
 }
 )
 
