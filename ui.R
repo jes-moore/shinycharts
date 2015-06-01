@@ -25,7 +25,9 @@ shinyUI(
                 column(width = 1,uiOutput("ggvis_ui1")),
                 column(width = 4,dateRangeInput("dates","Date range",min = Sys.Date()-years(5),max = Sys.Date(), start = "2015-01-01",end = as.character(Sys.Date())))
         ),
-        ##Row 2
+        
+        
+        ##Row 3
         fluidRow(
                 column(3,sliderInput("smaval",
                                      label = "SMA Days",
@@ -47,7 +49,7 @@ shinyUI(
                        )
                 
         ),
-        ##Row 3
+        ##Row 4
         fluidRow(
                 column(width = 12,ggvisOutput("ggvis"))
         ),
