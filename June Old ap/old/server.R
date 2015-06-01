@@ -43,7 +43,7 @@ shinyServer(function(input, output,session){
                 x <- input_data()
                 startdate <- as.Date(as.Date("1970-01-01") + days(input$dates[1]))
                 enddate <- as.Date(as.Date("1970-01-01") + days(input$dates[2]))
-                x$MA <- SMA(x = x$close,n=input$smaval)
+                if(any(input$upperindicators == 1)){x$MA <- SMA(x = x$close,n=input$smaval)}
                 cutdata <- x[(x$date >= startdate) & (x$date <= enddate),]              
         })
         
@@ -52,7 +52,7 @@ shinyServer(function(input, output,session){
         cutdata%>%
                 ggvis(x = ~date,y = ~close) %>%
                 layer_lines(stroke := "darkorange", strokeWidth := 1)%>%
-                layer_lines(x = ~date,y = ~ MA)%>%
+                if(!is.null(cutdata$MA)){layer_lines(x = ~date,y = ~ MA)}
                 add_axis("x",title = "",title_offset = -10 ,properties = axis_props(labels = list(angle = -90, align = "right")))%>%
                 scale_datetime("x",round = TRUE,expand = c(0,0),label = NULL,clamp = TRUE)%>%
                 scale_numeric("y",label = "Share Price",expand = c(0.01,0.1),)%>%
