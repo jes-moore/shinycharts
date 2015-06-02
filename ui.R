@@ -16,44 +16,26 @@ library(shiny)
 library(DT)
 library(ggvis)
 # ui.R
-shinyUI(
-        fluidPage(
-        ##Row 1
-        fluidRow(
-                column(width = 4,textInput("Ticker",label = "Stock Ticker XYZ",value = "ZIP")),
-                column(width = 1,uiOutput("ggvis_ui")),
-                column(width = 1,uiOutput("ggvis_ui1")),
-                column(width = 4,dateRangeInput("dates","Date range",min = Sys.Date()-years(5),max = Sys.Date(), start = "2015-01-01",end = as.character(Sys.Date())))
-        ),
+shinyUI(fluidPage(
         
-        
-        ##Row 3
-        fluidRow(
-                column(3,sliderInput("smaval",
-                                     label = "SMA Days",
-                                     min = 1,
-                                     max = 100,
-                                     value = 1)
-                        ),
-                column(3,sliderInput("emaval",
-                                     label = "EMA Days", 
-                                     min = 1, 
-                                     max = 100, 
-                                     value = 1)
-                       ),
-                column(3,sliderInput("bollval",
-                                     label = "Bollinger", 
-                                     min = 1, 
-                                     max = 100, 
-                                     value = 20)
-                       )
-                
-        ),
-        ##Row 4
-        fluidRow(
-                column(width = 12,ggvisOutput("ggvis"))
-        ),
-        fluidRow(
-                column(width = 12,ggvisOutput("ggvis1"))
+        sidebarLayout(fluid = TRUE,
+                sidebarPanel(
+                        width = 4,
+                        textInput("Ticker",label = h5("Stock Ticker XYZ"),value = "ZIP"),
+                        uiOutput("ggvis_ui"),
+                        uiOutput("ggvis_ui1"),
+                        dateRangeInput("dates",h5("Date range"),min = Sys.Date()-years(5),max = Sys.Date(), start = "2015-01-01",end = as.character(Sys.Date())),
+                        sliderInput("smaval",label = h5("Simple Moving Average Days"),min = 1,max = 100,value = 1),
+                        sliderInput("emaval",label = h5("Exponential MA Days"),min = 1,max = 100,value = 1),
+                        sliderInput("bollval",label = h5("Bollinger Days"),min = 1, max = 100,value = 20)
+                ),
+        mainPanel(
+                tabsetPanel(type = "tabs",
+                            tabPanel("Price Indicators",ggvisOutput("ggvis"),ggvisOutput("ggvismacd"),ggvisOutput("ggvis1")),
+                            tabPanel("Momentum Indicators",ggvisOutput("ggvisrsi"),ggvisOutput("ggvismfi")),
+                            tabPanel("Volume and Shorts")
+                            )
+                )
         )
 ))
+
