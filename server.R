@@ -15,6 +15,7 @@ library(lubridate)
 library(shiny)
 library(DT)
 library(ggvis)
+library(reshape2)
 
 shinyServer(function(input, output,session){
         input_data <- reactive({
@@ -74,6 +75,33 @@ shinyServer(function(input, output,session){
                 x <- cbind(x,mfi)
                 ##############################
                 
+                ############Chaikan###########
+                ##1. Money Flow Multiplier = [(Close  -  Low) - (High - Close)] /(High - Low) 
+                x$MFM <- ((x$close-x$low)-(x$high-x$close))/(x$high-x$low)
+                ##2. Money Flow Volume = Money Flow Multiplier x Volume for the Period
+                x$MFV <- x$MFM *x$volume
+                x$MFV[is.nan(x$MFV)] <- 0
+                ##3. ADL = Previous ADL + Current Period's Money Flow Volume
+                x$ADL <- NA
+                x$ADL[1] <- x$MFV[1]
+                i <- 2
+                while(i <= nrow(x)){
+                        x$ADL[i] <- x$ADL[i-1] + x$MFV[i]
+                        i <- i+1
+                }
+                ##4. Chaikin Oscillator = (3-day EMA of ADL)  -  (10-day EMA of ADL)    
+                x$chaiEMA3 <- EMA(x = x$ADL,n=3)
+                x$chaiEMA10 <- EMA(x = x$ADL,n = 10)
+                x$Chai <-(x$chaiEMA3-x$chaiEMA10)/1000
+                x$chaiSMA <- SMA(x = x$Chai,10)
+                ############Chaikan###########
+                
+                
+                cutdata <- x[(x$date >= startdate) & (x$date <= enddate),]
+                
+        })
+        
+#         shortdata <- reactive({
 #                 ##########Short Data##########
 #                 shorthistory <- read.csv("http://asic.gov.au/Reports/YTD/2015/RR20150511-001-SSDailyYTD.csv",skip=1,fileEncoding = "UTF-16",sep = "\t")
 #                 shorthistory <- shorthistory[-(1:2),]
@@ -93,15 +121,39 @@ shinyServer(function(input, output,session){
 #                                 i <- i+1
 #                         }
 #                 }
-#                 melted <- melt(data = shorthist1,id = c("Ticker","Company"))
+#                 return(shorthist1)
+#                 
+#         })
+
+#         stockshort <-  reactive({
+#                 data <- shortdata()
+#                 melted <- melt(data = data,id = c("Ticker","Company"))
 #                 melted$variable <- as.POSIXlt(x = melted$variable,format = "%Y.%m.%d")
 #                 melted$value[melted$value==""] <- 0.00
 #                 melted$value <- as.numeric(melted$value)
-#                 a <- melted[grep(pattern = input$Ticker,x = melted$Ticker),]
-                
-                cutdata <- x[(x$date >= startdate) & (x$date <= enddate),]
-                
-        })
+#                 a <- melted[melted[,1] ==input$Ticker[1] ,]
+# #                 data <- shortdata[,c(3,4)]
+# #                 colnames(shortdata) <- c("Date","ShortVolume")
+# #                 histdata <- histdata[,c(7,5,4)]
+# #                 colnames(histdata) <- c("Date","BuyVolume","SharePrice")
+# #                 histdata$Date <- as.Date(histdata$Date)
+# #                 shortdata$Date <- as.Date(shortdata$Date)
+# #                 combined <- merge(x = histdata,y = shortdata,by = "Date")
+# #                 melted <- melt(combined,id.vars = "Date")
+# #                 combined$ShortRatio <- combined$ShortVolume/combined$BuyVolume
+# #                 a
+#         })
+        
+#         #Create shorting plot for stock
+#         stockshort%>%
+#                 ggvis(x = ~date) %>%
+#                 layer_rects(y = ~volume, y2 = 0 , width := 5)%>%
+#                 hide_axis("x")%>%
+#                 add_axis("x",title = "",orient = "top",title_offset = -10 ,properties = axis_props(labels = list(angle = -90,align = "left")))%>%
+#                 scale_datetime("x",expand = c(0,0))%>%
+#                 scale_numeric("y",label = "Indicator",expand = c(0,0))%>%
+#                 set_options(height = 125, width = 700,resizable = F)%>%
+#                 bind_shiny("ggvisshort","ggvisshort_ui")
 
         ##Create Share price plot
         cutdata%>%
@@ -171,6 +223,18 @@ shinyServer(function(input, output,session){
                 set_options(height = 125, width = 700,resizable = F)%>%
                 bind_shiny("ggvismacd","ggvismacd_ui")
 
+        #Create Chaikan Plot
+        cutdata%>%
+                ggvis(x = ~date) %>%
+                layer_lines(y = ~ Chai, stroke = "Chai Osc/1000")%>%
+                layer_lines(y = ~chaiSMA,stroke = "Signal/1000")%>%
+                layer_lines(y = 0,stroke := "black")%>%
+                hide_axis("x")%>%
+                scale_datetime("x",round = TRUE,expand = c(0,0),label = NULL,clamp = TRUE)%>%
+                scale_numeric("y",label = "",expand = c(0.01,0.1))%>%
+                set_options(height = 125, width = 700,resizable = F)%>%
+                bind_shiny("ggvischai","ggvischai_ui")
+
         #Create MFI Plot
         cutdata%>%
                 ggvis(x = ~date) %>%
@@ -195,8 +259,6 @@ shinyServer(function(input, output,session){
                 set_options(height = 125, width = 700,resizable = F)%>%
                 bind_shiny("ggvisvol","ggvisvol_ui")
 
-        output$tabs <- renderText({
-                return(input$tab)})
 
 
 
