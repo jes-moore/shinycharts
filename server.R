@@ -74,6 +74,31 @@ shinyServer(function(input, output,session){
                 x <- cbind(x,mfi)
                 ##############################
                 
+#                 ##########Short Data##########
+#                 shorthistory <- read.csv("http://asic.gov.au/Reports/YTD/2015/RR20150511-001-SSDailyYTD.csv",skip=1,fileEncoding = "UTF-16",sep = "\t")
+#                 shorthistory <- shorthistory[-(1:2),]
+#                 shorthistory <- cbind(Row.Names = rownames(shorthistory), shorthistory)
+#                 rownames(shorthistory) <- NULL
+#                 colnames(shorthistory) <- substr(colnames(shorthistory),2,11)
+#                 colnames(shorthistory)[1] <- "Company"
+#                 colnames(shorthistory)[2] <- "Ticker"
+#                 shorthist1 <- shorthistory[,1:2]
+#                 i=3 ##start at first volume column with short data
+#                 while(i<=length(colnames(shorthistory))){
+#                         if(i%%2 == 0){
+#                                 shorthist1 <- cbind(shorthist1,shorthistory[i])
+#                                 i <- i+1
+#                         }
+#                         else{
+#                                 i <- i+1
+#                         }
+#                 }
+#                 melted <- melt(data = shorthist1,id = c("Ticker","Company"))
+#                 melted$variable <- as.POSIXlt(x = melted$variable,format = "%Y.%m.%d")
+#                 melted$value[melted$value==""] <- 0.00
+#                 melted$value <- as.numeric(melted$value)
+#                 a <- melted[grep(pattern = input$Ticker,x = melted$Ticker),]
+                
                 cutdata <- x[(x$date >= startdate) & (x$date <= enddate),]
                 
         })
@@ -89,7 +114,7 @@ shinyServer(function(input, output,session){
                 #######Add Bollinger Lines######
                 layer_lines(y = ~ up, stroke := "red", strokeWidth := 1.5)%>%
                 layer_lines(y = ~ dn, stroke := "red", strokeWidth := 1.5)%>%
-                layer_lines(y= ~mavg,stroke := "red",strokeWidth :=0.7 )%>%
+                layer_lines(y= ~mavg,stroke := "red",strokeWidth :=1.2 )%>%
                 ################################
                 ######Add Normal Y Axis#########
                 add_axis("y",orient = "left",title = "Share Price")%>%        
@@ -103,7 +128,7 @@ shinyServer(function(input, output,session){
                 #add_axis("y",'y2', orient = "right", title= "Volume",grid=F) %>% 
                 #scale_numeric("y","y2", domain = c(0, -1), nice = FALSE) %>%
                 #layer_rects(~volume,prop('y',scale='y2'))%>%
-                set_options(height = 300, width = 700,resizable = F)%>%
+                set_options(height = 250, width = 700,resizable = F)%>%
                 bind_shiny("ggvis","ggvis_ui")
 
 
@@ -117,7 +142,7 @@ shinyServer(function(input, output,session){
                 hide_axis("x")%>%
                 scale_datetime("x",round = TRUE,expand = c(0,0),label = NULL,clamp = TRUE)%>%
                 scale_numeric("y",label = "Differential",expand = c(0.01,0.1))%>%
-                set_options(height = 150, width = 700,,resizable = F)%>%
+                set_options(height = 125, width = 700,resizable = F)%>%
                 bind_shiny("ggvis1","ggvis_ui1")
         
         #Create RSI Plot
@@ -130,8 +155,8 @@ shinyServer(function(input, output,session){
                 add_axis("x",title = "",orient = "top",title_offset = -10 ,properties = axis_props(labels = list(angle = -90,align = "left")))%>%        
                 #hide_axis("x")%>%
                 scale_datetime("x",round = TRUE,expand = c(0,0),label = NULL,clamp = TRUE)%>%
-                scale_numeric("y",label = "Indicator",expand = c(0.01,0.1))%>%
-                set_options(height = 150, width = 700,,resizable = F)%>%
+                scale_numeric("y",label = "Indicator",expand = c(0,0),c(100,0))%>%
+                set_options(height = 125, width = 700,resizable = F)%>%
                 bind_shiny("ggvisrsi","ggvisrsi_ui")
 
         #Create MACD Plot
@@ -143,7 +168,7 @@ shinyServer(function(input, output,session){
                 hide_axis("x")%>%
                 scale_datetime("x",round = TRUE,expand = c(0,0),label = NULL,clamp = TRUE)%>%
                 scale_numeric("y",label = "Indicator",expand = c(0.01,0.1))%>%
-                set_options(height = 150, width = 700,,resizable = F)%>%
+                set_options(height = 125, width = 700,resizable = F)%>%
                 bind_shiny("ggvismacd","ggvismacd_ui")
 
         #Create MFI Plot
@@ -155,9 +180,23 @@ shinyServer(function(input, output,session){
                 layer_lines(y = 50,stroke := "black")%>%
                 hide_axis("x")%>%
                 scale_datetime("x",round = TRUE,expand = c(0,0),label = NULL,clamp = TRUE)%>%
-                scale_numeric("y",label = "Indicator",expand = c(0.01,0.1))%>%
-                set_options(height = 150, width = 700,,resizable = F)%>%
+                scale_numeric("y",label = "Indicator",expand = c(0,0),c(100,0))%>%
+                set_options(height = 125, width = 700,resizable = F)%>%
                 bind_shiny("ggvismfi","ggvismfi_ui")
+
+        #Create Volume plot
+        cutdata%>%
+                ggvis(x = ~date) %>%
+                layer_rects(y = ~volume, y2 = 0 , width := 5)%>%
+                hide_axis("x")%>%
+                add_axis("x",title = "",orient = "top",title_offset = -10 ,properties = axis_props(labels = list(angle = -90,align = "left")))%>%
+                scale_datetime("x",expand = c(0,0))%>%
+                scale_numeric("y",label = "Indicator",expand = c(0,0))%>%
+                set_options(height = 125, width = 700,resizable = F)%>%
+                bind_shiny("ggvisvol","ggvisvol_ui")
+
+        output$tabs <- renderText({
+                return(input$tab)})
 
 
 
