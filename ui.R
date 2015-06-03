@@ -15,6 +15,7 @@ library(lubridate)
 library(shiny)
 library(DT)
 library(ggvis)
+library(dygraphs)
 currencies = sort(c("XAF", "ARS", "AUD", "BSD", "BRL", "BGN", "CAD", "CLP", "CNY", "COP", "HRK",  "CYP", "CZK", "DKK", "LTC", "BTC", "XCD", "EEK", "EUR", "FJD", 
                "XPF", "GHS", "GTQ", "HNL", "HKD", "HUF", "ISK", "INR", "IDR",  "ILS",  "JMD",  "JPY", "LVL", "LTL", "MYR", "MXN", "MAD", "MMK", "ANG", "NZD", 
                "NOK", "PKR", "PAB", "PEN", "PHP", "PLN", "Gold","QAR", "RON",  "RUB",  "SAR",  "RSD", "SGD", "ZAR", "KRW", "LKR", "SEK", "CHF", "TWD", "THB", 
@@ -28,7 +29,7 @@ shinyUI(fluidPage(
                 sidebarPanel(
                         width = 4,
                         textInput("Ticker",label = h5("Stock Ticker XYZ"),value = "ZIP"),
-                        dateRangeInput("dates",h5("Date range"),min = Sys.Date()-years(5),max = Sys.Date(), start = "2015-01-01",end = as.character(Sys.Date())),
+                        dateRangeInput("dates",h5("Date range"),min = Sys.Date()-years(5),max = Sys.Date(), start = "2015-01-01",end = as.character(Sys.Date()+days(1))),
                         
                         conditionalPanel("input.tab==1 || input.tab==2",
                                          sliderInput("smaval",label = h5("Simple Moving Average Days"),min = 1,max = 100,value = 1)
@@ -114,7 +115,7 @@ shinyUI(fluidPage(
                                                       ggvisOutput("ggvismfi")
                                      )
                             ),
-                            tabPanel("Volume and Shorts",value = 3,ggvisOutput("ggvisvol")),
+                            tabPanel("Volume and Shorts",value = 3,ggvisOutput("ggvissp3"),ggvisOutput("ggvisvol"),ggvisOutput("ggvisadl")),
                             tabPanel("Economic Calendar",value = 4,div(dataTableOutput("table"),style = "font-size:85%")),
                             tabPanel("Foreign Exchange",value = 5,
                                      h5(textOutput("ct1")),
@@ -125,6 +126,7 @@ shinyUI(fluidPage(
                                      conditionalPanel("input.comp2 != 'none'",
                                                       ggvisOutput("ggviscomp2")
                                                       )
+                                     #dygraphOutput("dygraph",width = 700,height = 250)
                                      )
                             )
                 )

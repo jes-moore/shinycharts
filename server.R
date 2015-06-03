@@ -16,6 +16,7 @@ library(shiny)
 library(DT)
 library(ggvis)
 library(reshape2)
+library(xts)
 
 shinyServer(function(input, output,session){
         input_data <- reactive({
@@ -69,7 +70,7 @@ shinyServer(function(input, output,session){
                 x <- cbind(x,mfi)
                 ##############################
                 
-                ############Chaikan###########
+                ############Chaikan and ADL###########
                 x$MFM <- ((x$close-x$low)-(x$high-x$close))/(x$high-x$low)
                 x$MFV <- x$MFM *x$volume
                 x$MFV[is.nan(x$MFV)] <- 0
@@ -84,12 +85,15 @@ shinyServer(function(input, output,session){
                 x$chaiEMA10 <- EMA(x = x$ADL,n = 10)
                 x$Chai <-(x$chaiEMA3-x$chaiEMA10)/1000
                 x$chaiSMA <- SMA(x = x$Chai,10)
+                x$ADL <- x$ADL/1000
+                x$volume <- x$volume/1000
                 #################################
                 
                 ######Aroon Trendline########
                 aroontrend <- aroon(x[,c("high","low")],n=input$aroon)
                 x <- cbind( x,aroontrend)
                 #############################
+                        
                 
                 cutdata <- x[(x$date >= startdate) & (x$date <= enddate),]
                 
@@ -144,6 +148,22 @@ shinyServer(function(input, output,session){
                 scale_datetime("x",round = TRUE,expand = c(0,0),label = NULL,clamp = TRUE)%>%        
                 set_options(height = 250, width = 700,resizable = F)%>%
                         bind_shiny("ggvis3","ggvis_ui3")
+        
+        ##Create a thirdSP plot
+        cutdata%>%
+                ggvis(x = ~date,y = ~close) %>%
+                ######Add Share ,MA, EMA#######
+                layer_lines(stroke := "grey", strokeWidth := 2)%>%
+                ###############################
+                ######Add Normal Y Axis#########
+                add_axis("y",orient = "left",title = "Share Price")%>%        
+                scale_numeric("y",expand = c(0.01,0.1),)%>%
+                ################################
+                ######Add Normal X Axis#########
+                add_axis("x",title = "",orient = "top",title_offset = -10 ,properties = axis_props(labels = list(angle = -90,align = "left")))%>%
+                scale_datetime("x",round = TRUE,expand = c(0,0),label = NULL,clamp = TRUE)%>%        
+                set_options(height = 250, width = 700,resizable = F)%>%
+                bind_shiny("ggvissp3","ggvissp3_ui")
         
         ##Create Elder Rays Plot
         cutdata%>%
@@ -226,21 +246,33 @@ shinyServer(function(input, output,session){
                 layer_lines(y = 20,stroke := "green")%>%
                 layer_lines(y = 50,stroke := "black")%>%
                 hide_axis("x")%>%
-                #scale_datetime("x",round = TRUE,expand = c(0,0),label = NULL,clamp = TRUE)%>%
+                scale_datetime("x",round = TRUE,expand = c(0,0),label = NULL,clamp = TRUE)%>%
                 scale_numeric("y",label = "Indicator",expand = c(0,0),c(100,0))%>%
                 set_options(height = 125, width = 700,resizable = F)%>%
                 bind_shiny("ggvismfi","ggvismfi_ui")
+        
+        #ADL Plot
+        cutdata%>%
+                ggvis(x = ~date) %>%
+                layer_lines(y = ~ ADL, stroke = "ADL/1000")%>%
+                hide_axis("x")%>%
+                scale_datetime("x",round = TRUE,expand = c(0,0),label = NULL,clamp = TRUE)%>%
+                scale_numeric("y",label = "",expand = c(0,0))%>%
+                set_options(height = 125, width = 700,resizable = F)%>%
+                bind_shiny("ggvisadl","ggvisadl_ui")
 
         #Create Volume plot
         cutdata%>%
                 ggvis(x = ~date) %>%
-                layer_rects(y = ~volume, y2 = 0 , width := 5)%>%
+                layer_rects(y = ~volume, y2 = 0, fill = "Volume/1000" , width := 5)%>%
                 hide_axis("x")%>%
-                add_axis("x",title = "",orient = "top",title_offset = -10 ,properties = axis_props(labels = list(angle = -90,align = "left")))%>%
+                #add_axis("x",title = "",orient = "top",title_offset = -10 ,properties = axis_props(labels = list(angle = -90,align = "left")))%>%
                 scale_datetime("x",expand = c(0,0))%>%
                 scale_numeric("y",label = "",expand = c(0,0))%>%
                 set_options(height = 125, width = 700,resizable = F)%>%
                 bind_shiny("ggvisvol","ggvisvol_ui")
+        
+        
 
 #############################Economic Calendar Data##########################################
 calendar <-reactive({
@@ -330,7 +362,16 @@ add_axis("x",title = "",orient = "top",title_offset = -10 ,properties = axis_pro
         bind_shiny("ggviscomp2","ggviscomp2_ui")
 #######################################################################################################  
 
-
+# currency_data3 <-reactive({
+#         currency_data3 <- currency_data2()
+#         currency_data3<- xts(x = currency_data3$exchange,order.by = currency_data3$date)
+#         currency_data3
+# })
+# 
+# output$dygraph <- renderDygraph({
+#         dygraph(currency_data3()) %>%
+#                 dyRangeSelector()
+# })
 
 
 
