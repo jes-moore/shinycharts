@@ -34,13 +34,7 @@ shinyServer(function(input, output,session){
                 xSubset <-data.frame('date'=date,'open'=open,'high'= high,'low'=low,'close'=close,"volume"=volume)
                 xSubset})
         
-#         addma <- reactive({
-#                 x <- cutdata()
-#                 x$MA <- SMA(x = data$SharePrice,n=input$smaval)
-#                 x
-#         })
-        
-                
+              
         cutdata <- reactive({
                 x <- input_data()
                 startdate <- as.Date(as.Date("1970-01-01") + days(input$dates[1]))
@@ -93,7 +87,7 @@ shinyServer(function(input, output,session){
                 #################################
                 
                 ######Aroon Trendline########
-                aroontrend <- aroon(x[,c("high","low")],n=20)
+                aroontrend <- aroon(x[,c("high","low")],n=input$aroon)
                 x <- cbind( x,aroontrend)
                 #############################
                 
@@ -141,23 +135,13 @@ shinyServer(function(input, output,session){
                 layer_lines(x = ~date,y = ~ EMA,stroke = "EMA")%>%
                 layer_lines(stroke := "grey", strokeWidth := 2)%>%
                 ###############################
-                #######Add Bollinger Lines######
-#                 layer_lines(y = ~ up, stroke := "red", strokeWidth := 1.5)%>%
-#                 layer_lines(y = ~ dn, stroke := "red", strokeWidth := 1.5)%>%
-#                 layer_lines(y= ~mavg,stroke := "red",strokeWidth :=1.2 )%>%
-                ################################
-                ######Add Normal Y Axis#########
+                 ######Add Normal Y Axis#########
                 add_axis("y",orient = "left",title = "Share Price")%>%        
                 scale_numeric("y",expand = c(0.01,0.1),)%>%
                 ################################
                 ######Add Normal X Axis#########
                 add_axis("x",title = "",orient = "top",title_offset = -10 ,properties = axis_props(labels = list(angle = -90,align = "left")))%>%
                 scale_datetime("x",round = TRUE,expand = c(0,0),label = NULL,clamp = TRUE)%>%        
-                ################################
-                ######Add Secondary y Axis#########
-                #add_axis("y",'y2', orient = "right", title= "Volume",grid=F) %>% 
-                #scale_numeric("y","y2", domain = c(0, -1), nice = FALSE) %>%
-                #layer_rects(~volume,prop('y',scale='y2'))%>%
                 set_options(height = 250, width = 700,resizable = F)%>%
                         bind_shiny("ggvis3","ggvis_ui3")
         
@@ -181,8 +165,8 @@ shinyServer(function(input, output,session){
                 layer_lines(y = 70,stroke := "red")%>%
                 layer_lines(y = 50,stroke := "black")%>%
                 layer_lines(y = 30,stroke := "green")%>%
-                add_axis("x",title = "",orient = "top",title_offset = -10 ,properties = axis_props(labels = list(angle = -90,align = "left")))%>%        
-                #hide_axis("x")%>%
+                #add_axis("x",title = "",orient = "top",title_offset = -10 ,properties = axis_props(labels = list(angle = -90,align = "left")))%>%        
+                hide_axis("x")%>%
                 scale_datetime("x",round = TRUE,expand = c(0,0),label = NULL,clamp = TRUE)%>%
                 scale_numeric("y",label = "Indicator",expand = c(0,0),c(100,0))%>%
                 set_options(height = 125, width = 700,resizable = F)%>%
@@ -216,7 +200,6 @@ shinyServer(function(input, output,session){
         ################################
         ######Add Normal X Axis#########
         hide_axis("x")%>%
-        #add_axis("x",title = "",orient = "top",title_offset = -10 ,properties = axis_props(labels = list(angle = -90,align = "left")))%>%
         scale_datetime("x",round = TRUE,expand = c(0,0),label = NULL,clamp = TRUE)%>%        
         set_options(height = 125, width = 700,resizable = F)%>%
         bind_shiny("ggvisaroon","ggaroon_ui")
@@ -243,7 +226,7 @@ shinyServer(function(input, output,session){
                 layer_lines(y = 20,stroke := "green")%>%
                 layer_lines(y = 50,stroke := "black")%>%
                 hide_axis("x")%>%
-                scale_datetime("x",round = TRUE,expand = c(0,0),label = NULL,clamp = TRUE)%>%
+                #scale_datetime("x",round = TRUE,expand = c(0,0),label = NULL,clamp = TRUE)%>%
                 scale_numeric("y",label = "Indicator",expand = c(0,0),c(100,0))%>%
                 set_options(height = 125, width = 700,resizable = F)%>%
                 bind_shiny("ggvismfi","ggvismfi_ui")
@@ -259,17 +242,97 @@ shinyServer(function(input, output,session){
                 set_options(height = 125, width = 700,resizable = F)%>%
                 bind_shiny("ggvisvol","ggvisvol_ui")
 
-        #Economic Calendar Data
+#############################Economic Calendar Data##########################################
 calendar <-reactive({
         calendar <- read.csv("http://www.myfxbook.com/calendar_statement.csv?start=2015-06-02%2000:00&end=2015-06-04%2000:00&filter=0-1-2-3_ANG-ARS-AUD-BRL-CAD-CHF-CLP-CNY-COP-CZK-DKK-EEK-EUR-GBP-HKD-HUF-IDR-INR-ISK-JPY-KPW-KRW-MXN-NOK-NZD-PEI-PLN-QAR-ROL-RUB-SEK-SGD-TRY-USD-ZAR&calPeriod=10")
         calendar$Date <- as.POSIXct(strptime(x = calendar$Date,format = "%Y, %B %d,%k",tz = "gmt"),tz = "gmt")
         calendar$Date <- format(calendar$Date, tz=Sys.timezone(),usetz=TRUE)     
         calendar
 })
-
-
-        
 output$table <- renderDataTable(DT::datatable(calendar()))
+#############################################################################################
+       
+##################################Currency Pain 1##############################################
+readcurrency_data1 <-reactive({
+        currency_data1 <- getSymbols(paste(input$base,"/",input$comp1,sep = ""),src="oanda",env = .GlobalEnv,return.class = "data.frame",auto.assign=FALSE)
+        currency_data1 <- data.frame(date = as.Date(rownames(currency_data1)),exchange = currency_data1)
+        rownames(currency_data1) <- NULL
+        colnames(currency_data1) <- c("date","exchange")
+        currency_data1
+})
+
+currency_data1 <-reactive({
+        currency_data1 <- getSymbols(paste(input$base,"/",input$comp1,sep = ""),src="oanda",env = .GlobalEnv,return.class = "data.frame",auto.assign=FALSE)
+        currency_data1 <- data.frame(date = as.Date(rownames(currency_data1)),exchange = currency_data1)
+        rownames(currency_data1) <- NULL
+        colnames(currency_data1) <- c("date","exchange")
+        startdate <- as.Date(as.Date("1970-01-01") + days(input$dates[1]))
+        enddate <- as.Date(as.Date("1970-01-01") + days(input$dates[2]))
+        currency_data1 <- currency_data1[(currency_data1$date >= startdate) & (currency_data1$date <= enddate),]
+})
+
+output$ct1 <- renderText({
+        paste(input$base,"/",input$comp1,"")
+})
+
+        ##plot currency data
+        currency_data1%>%
+        ggvis(x = ~date,y = ~exchange ) %>%
+        layer_lines(stroke := "red", strokeWidth := 2)%>%
+        ###############################
+        ######Add Normal Y Axis#########
+        add_axis("y",orient = "left",title = "")%>%        
+        scale_numeric("y",expand = c(0.01,0.1),)%>%
+        ################################
+        ######Add Normal X Axis#########
+        add_axis("x",title = "",orient = "top",title_offset = -10 ,properties = axis_props(labels = list(angle = -90,align = "left")))%>%
+        scale_datetime("x",round = TRUE,expand = c(0,0),label = NULL,clamp = TRUE)%>%        
+        set_options(height = 250, width = 700,resizable = F)%>%
+        bind_shiny("ggviscomp1","ggviscomp1_ui")
+#######################################################################################################        
+ 
+##################################Currency Pain 2##############################################
+readcurrency_data2 <-reactive({
+        currency_data2 <- getSymbols(paste(input$base,"/",input$comp2,sep = ""),src="oanda",env = .GlobalEnv,return.class = "data.frame",auto.assign=FALSE)
+        currency_data2 <- data.frame(date = as.Date(rownames(currency_data2)),exchange = currency_data2)
+        rownames(currency_data2) <- NULL
+        colnames(currency_data2) <- c("date","exchange")
+        currency_data2
+})
+
+currency_data2 <-reactive({
+        currency_data2 <- getSymbols(paste(input$base,"/",input$comp2,sep = ""),src="oanda",env = .GlobalEnv,return.class = "data.frame",auto.assign=FALSE)
+        currency_data2 <- data.frame(date = as.Date(rownames(currency_data2)),exchange = currency_data2)
+        rownames(currency_data2) <- NULL
+        colnames(currency_data2) <- c("date","exchange")
+        startdate <- as.Date(as.Date("1970-01-01") + days(input$dates[1]))
+        enddate <- as.Date(as.Date("1970-01-01") + days(input$dates[2]))
+        currency_data2 <- currency_data2[(currency_data2$date >= startdate) & (currency_data2$date <= enddate),]
+})
+
+output$ct2 <- renderText({
+        paste(input$base,"/",input$comp2,"")
+})
+
+##plot currency data
+currency_data2%>%
+        ggvis(x = ~date,y = ~exchange ) %>%
+        layer_lines(stroke := "red", strokeWidth := 2)%>%
+        ###############################
+######Add Normal Y Axis#########
+add_axis("y",orient = "left",title = "")%>%        
+        scale_numeric("y",expand = c(0.01,0.1),)%>%
+        ################################
+######Add Normal X Axis#########
+add_axis("x",title = "",orient = "top",title_offset = -10 ,properties = axis_props(labels = list(angle = -90,align = "left")))%>%
+        scale_datetime("x",round = TRUE,expand = c(0,0),label = NULL,clamp = TRUE)%>%        
+        set_options(height = 250, width = 700,resizable = F)%>%
+        bind_shiny("ggviscomp2","ggviscomp2_ui")
+#######################################################################################################  
+
+
+
+
 
 
 

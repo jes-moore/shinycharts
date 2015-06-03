@@ -15,33 +15,76 @@ library(lubridate)
 library(shiny)
 library(DT)
 library(ggvis)
+currencies = sort(c("XAF", "ARS", "AUD", "BSD", "BRL", "BGN", "CAD", "CLP", "CNY", "COP", "HRK",  "CYP", "CZK", "DKK", "LTC", "BTC", "XCD", "EEK", "EUR", "FJD", 
+               "XPF", "GHS", "GTQ", "HNL", "HKD", "HUF", "ISK", "INR", "IDR",  "ILS",  "JMD",  "JPY", "LVL", "LTL", "MYR", "MXN", "MAD", "MMK", "ANG", "NZD", 
+               "NOK", "PKR", "PAB", "PEN", "PHP", "PLN", "Gold","QAR", "RON",  "RUB",  "SAR",  "RSD", "SGD", "ZAR", "KRW", "LKR", "SEK", "CHF", "TWD", "THB", 
+               "TTD", "TND", "TRY", "AED", "GBP", "USD", "VND", "VEF","none" ))
+
 # ui.R
 
 shinyUI(fluidPage(
         
         sidebarLayout(fluid = TRUE,
                 sidebarPanel(
-                        width = 3,
+                        width = 4,
                         textInput("Ticker",label = h5("Stock Ticker XYZ"),value = "ZIP"),
-                        #uiOutput("ggvis_ui"),
-                        #uiOutput("ggvis_ui1"),
                         dateRangeInput("dates",h5("Date range"),min = Sys.Date()-years(5),max = Sys.Date(), start = "2015-01-01",end = as.character(Sys.Date())),
+                        
                         conditionalPanel("input.tab==1 || input.tab==2",
                                          sliderInput("smaval",label = h5("Simple Moving Average Days"),min = 1,max = 100,value = 1)
                                          ),
+                        
                         conditionalPanel("input.tab==1",
                                          sliderInput("bollval",label = h5("Bollinger Days"),min = 1, max = 100,value = 20)
                                          ),
+                        
                         conditionalPanel("input.tab==1 || input.tab==2",
                                          sliderInput("emaval",label = h5("Exponential MA Days"),min = 1,max = 100,value = 1)
                                          ),
+                        
+                        conditionalPanel("input.tab==2",
+                                         sliderInput("aroon",label = h5("Aroon Period"),min = 10,max = 75,value = 20)
+                        ),
+                        
                         conditionalPanel("input.tab==1",
                                          checkboxGroupInput("price",selected = c(1,2,3),inline = TRUE, h5("Indicators"),
                                                             c("MACD" = 1,
-                                                              "Elder Rays" = 2,
-                                                              "Chai Osc" = 3)
+                                                              "Elder" = 2,
+                                                              "Chai" = 3)
                                                             )
+                                         ),
+                        
+                        ####################################Currency Tab#########################################################
+                        ####################################Currency Tab#########################################################
+                        conditionalPanel("input.tab==5",
+                                         selectInput("base",choices = currencies,selected = "USD", label = h5("Base Currency")
+                                                   )
+                        ),
+                        
+                        conditionalPanel("input.tab==5",
+                                         selectInput("comp1",choices = currencies,selected = "AUD", label = h5("Comparison Currency")
+                                                     )
+                        ),
+                        
+                        conditionalPanel("input.tab==5",
+                                         selectInput("comp2",choices = currencies,selected = "none", label = h5("Comparison Currency")
                                          )
+                        ),
+                        
+                        conditionalPanel("input.tab==5",
+                                         selectInput("comp3",choices = currencies,selected = "none", label = h5("Comparison Currency")
+                                         )
+                        ),
+                        ####################################Currency Tab#########################################################
+                        ####################################Currency Tab#########################################################
+                        
+                        conditionalPanel("input.tab==2",
+                                         checkboxGroupInput("momentum",selected = c(1,2,3),inline = TRUE, h5("Indicators"),
+                                                            c("Aroon" = 1,
+                                                              "RSI" = 2,
+                                                              "MFI" = 3)
+                                         )
+                        )
                 ),
         mainPanel(
                 tabsetPanel(type = "tabs",id = "tab",
@@ -58,11 +101,34 @@ shinyUI(fluidPage(
                                                       ggvisOutput("ggvischai")
                                                       )
                                      ),
-                            tabPanel("Momentum Indicators",value = 2,ggvisOutput("ggvis3"),ggvisOutput("ggvisaroon"),ggvisOutput("ggvisrsi"),ggvisOutput("ggvismfi")),
+                            tabPanel("Momentum Indicators",
+                                     value = 2,
+                                     ggvisOutput("ggvis3"),
+                                     conditionalPanel("input.momentum[0] == 1",
+                                                      ggvisOutput("ggvisaroon")
+                                     ),
+                                     conditionalPanel("input.momentum[1] == 2 || input.momentum[0] == 2 ",
+                                                      ggvisOutput("ggvisrsi")
+                                     ),
+                                     conditionalPanel("input.momentum[1] == 3 || input.momentum[0] == 3 || input.momentum[2] == 3 ",
+                                                      ggvisOutput("ggvismfi")
+                                     )
+                            ),
                             tabPanel("Volume and Shorts",value = 3,ggvisOutput("ggvisvol")),
-                            tabPanel("Economic Calendar",value = 4,div(dataTableOutput("table"),style = "font-size:85%"))
+                            tabPanel("Economic Calendar",value = 4,div(dataTableOutput("table"),style = "font-size:85%")),
+                            tabPanel("Foreign Exchange",value = 5,
+                                     h5(textOutput("ct1")),
+                                     ggvisOutput("ggviscomp1"),
+                                     conditionalPanel("input.comp2 != 'none'",
+                                                      h5(textOutput("ct2"))
+                                     ),
+                                     conditionalPanel("input.comp2 != 'none'",
+                                                      ggvisOutput("ggviscomp2")
+                                                      )
+                                     )
                             )
                 )
         )
-))
+        )
+)
 
