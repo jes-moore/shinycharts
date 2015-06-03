@@ -76,12 +76,9 @@ shinyServer(function(input, output,session){
                 ##############################
                 
                 ############Chaikan###########
-                ##1. Money Flow Multiplier = [(Close  -  Low) - (High - Close)] /(High - Low) 
                 x$MFM <- ((x$close-x$low)-(x$high-x$close))/(x$high-x$low)
-                ##2. Money Flow Volume = Money Flow Multiplier x Volume for the Period
                 x$MFV <- x$MFM *x$volume
                 x$MFV[is.nan(x$MFV)] <- 0
-                ##3. ADL = Previous ADL + Current Period's Money Flow Volume
                 x$ADL <- NA
                 x$ADL[1] <- x$MFV[1]
                 i <- 2
@@ -89,73 +86,22 @@ shinyServer(function(input, output,session){
                         x$ADL[i] <- x$ADL[i-1] + x$MFV[i]
                         i <- i+1
                 }
-                ##4. Chaikin Oscillator = (3-day EMA of ADL)  -  (10-day EMA of ADL)    
                 x$chaiEMA3 <- EMA(x = x$ADL,n=3)
                 x$chaiEMA10 <- EMA(x = x$ADL,n = 10)
                 x$Chai <-(x$chaiEMA3-x$chaiEMA10)/1000
                 x$chaiSMA <- SMA(x = x$Chai,10)
-                ############Chaikan###########
+                #################################
                 
+                ######Aroon Trendline########
+                aroontrend <- aroon(x[,c("high","low")],n=20)
+                x <- cbind( x,aroontrend)
+                #############################
                 
                 cutdata <- x[(x$date >= startdate) & (x$date <= enddate),]
                 
         })
-        
-#         shortdata <- reactive({
-#                 ##########Short Data##########
-#                 shorthistory <- read.csv("http://asic.gov.au/Reports/YTD/2015/RR20150511-001-SSDailyYTD.csv",skip=1,fileEncoding = "UTF-16",sep = "\t")
-#                 shorthistory <- shorthistory[-(1:2),]
-#                 shorthistory <- cbind(Row.Names = rownames(shorthistory), shorthistory)
-#                 rownames(shorthistory) <- NULL
-#                 colnames(shorthistory) <- substr(colnames(shorthistory),2,11)
-#                 colnames(shorthistory)[1] <- "Company"
-#                 colnames(shorthistory)[2] <- "Ticker"
-#                 shorthist1 <- shorthistory[,1:2]
-#                 i=3 ##start at first volume column with short data
-#                 while(i<=length(colnames(shorthistory))){
-#                         if(i%%2 == 0){
-#                                 shorthist1 <- cbind(shorthist1,shorthistory[i])
-#                                 i <- i+1
-#                         }
-#                         else{
-#                                 i <- i+1
-#                         }
-#                 }
-#                 return(shorthist1)
-#                 
-#         })
 
-#         stockshort <-  reactive({
-#                 data <- shortdata()
-#                 melted <- melt(data = data,id = c("Ticker","Company"))
-#                 melted$variable <- as.POSIXlt(x = melted$variable,format = "%Y.%m.%d")
-#                 melted$value[melted$value==""] <- 0.00
-#                 melted$value <- as.numeric(melted$value)
-#                 a <- melted[melted[,1] ==input$Ticker[1] ,]
-# #                 data <- shortdata[,c(3,4)]
-# #                 colnames(shortdata) <- c("Date","ShortVolume")
-# #                 histdata <- histdata[,c(7,5,4)]
-# #                 colnames(histdata) <- c("Date","BuyVolume","SharePrice")
-# #                 histdata$Date <- as.Date(histdata$Date)
-# #                 shortdata$Date <- as.Date(shortdata$Date)
-# #                 combined <- merge(x = histdata,y = shortdata,by = "Date")
-# #                 melted <- melt(combined,id.vars = "Date")
-# #                 combined$ShortRatio <- combined$ShortVolume/combined$BuyVolume
-# #                 a
-#         })
-        
-#         #Create shorting plot for stock
-#         stockshort%>%
-#                 ggvis(x = ~date) %>%
-#                 layer_rects(y = ~volume, y2 = 0 , width := 5)%>%
-#                 hide_axis("x")%>%
-#                 add_axis("x",title = "",orient = "top",title_offset = -10 ,properties = axis_props(labels = list(angle = -90,align = "left")))%>%
-#                 scale_datetime("x",expand = c(0,0))%>%
-#                 scale_numeric("y",label = "Indicator",expand = c(0,0))%>%
-#                 set_options(height = 125, width = 700,resizable = F)%>%
-#                 bind_shiny("ggvisshort","ggvisshort_ui")
-
-        ##Create Share price plot
+        ##SP plot
         cutdata%>%
                 ggvis(x = ~date,y = ~close) %>%
                 ######Add Share ,MA, EMA#######
@@ -184,6 +130,37 @@ shinyServer(function(input, output,session){
                 bind_shiny("ggvis","ggvis_ui")
 
 
+
+
+
+        ##Create a second SP plot
+        cutdata%>%
+                ggvis(x = ~date,y = ~close) %>%
+                ######Add Share ,MA, EMA#######
+                layer_lines(x = ~date,y = ~ MA, stroke = "MA")%>%
+                layer_lines(x = ~date,y = ~ EMA,stroke = "EMA")%>%
+                layer_lines(stroke := "grey", strokeWidth := 2)%>%
+                ###############################
+                #######Add Bollinger Lines######
+#                 layer_lines(y = ~ up, stroke := "red", strokeWidth := 1.5)%>%
+#                 layer_lines(y = ~ dn, stroke := "red", strokeWidth := 1.5)%>%
+#                 layer_lines(y= ~mavg,stroke := "red",strokeWidth :=1.2 )%>%
+                ################################
+                ######Add Normal Y Axis#########
+                add_axis("y",orient = "left",title = "Share Price")%>%        
+                scale_numeric("y",expand = c(0.01,0.1),)%>%
+                ################################
+                ######Add Normal X Axis#########
+                add_axis("x",title = "",orient = "top",title_offset = -10 ,properties = axis_props(labels = list(angle = -90,align = "left")))%>%
+                scale_datetime("x",round = TRUE,expand = c(0,0),label = NULL,clamp = TRUE)%>%        
+                ################################
+                ######Add Secondary y Axis#########
+                #add_axis("y",'y2', orient = "right", title= "Volume",grid=F) %>% 
+                #scale_numeric("y","y2", domain = c(0, -1), nice = FALSE) %>%
+                #layer_rects(~volume,prop('y',scale='y2'))%>%
+                set_options(height = 250, width = 700,resizable = F)%>%
+                        bind_shiny("ggvis3","ggvis_ui3")
+        
         ##Create Elder Rays Plot
         cutdata%>%
                 ggvis(x = ~date) %>%
@@ -223,6 +200,29 @@ shinyServer(function(input, output,session){
                 set_options(height = 125, width = 700,resizable = F)%>%
                 bind_shiny("ggvismacd","ggvismacd_ui")
 
+        ##Create Aroon Plot
+        cutdata%>%
+        ggvis(x = ~date,y = ~close) %>%
+        ######Add Share ,MA, EMA#######
+        #layer_lines(stroke := "grey", strokeWidth := 2)%>%
+        ###############################
+        #######Add Aroon lines#########
+        layer_lines(y = ~ aroonUp, stroke = "AroonUp", strokeWidth := 1.5)%>%
+        layer_lines(y = ~ aroonDn, stroke = "AroonDn", strokeWidth := 1.5)%>%
+        ################################
+        ######Add Normal Y Axis#########
+        add_axis("y",orient = "left",title = "Indicator")%>%        
+        scale_numeric("y",expand = c(0.01,0.1),)%>%
+        ################################
+        ######Add Normal X Axis#########
+        hide_axis("x")%>%
+        #add_axis("x",title = "",orient = "top",title_offset = -10 ,properties = axis_props(labels = list(angle = -90,align = "left")))%>%
+        scale_datetime("x",round = TRUE,expand = c(0,0),label = NULL,clamp = TRUE)%>%        
+        set_options(height = 125, width = 700,resizable = F)%>%
+        bind_shiny("ggvisaroon","ggaroon_ui")
+
+
+
         #Create Chaikan Plot
         cutdata%>%
                 ggvis(x = ~date) %>%
@@ -255,9 +255,22 @@ shinyServer(function(input, output,session){
                 hide_axis("x")%>%
                 add_axis("x",title = "",orient = "top",title_offset = -10 ,properties = axis_props(labels = list(angle = -90,align = "left")))%>%
                 scale_datetime("x",expand = c(0,0))%>%
-                scale_numeric("y",label = "Indicator",expand = c(0,0))%>%
+                scale_numeric("y",label = "",expand = c(0,0))%>%
                 set_options(height = 125, width = 700,resizable = F)%>%
                 bind_shiny("ggvisvol","ggvisvol_ui")
+
+        #Economic Calendar Data
+calendar <-reactive({
+        calendar <- read.csv("http://www.myfxbook.com/calendar_statement.csv?start=2015-06-02%2000:00&end=2015-06-04%2000:00&filter=0-1-2-3_ANG-ARS-AUD-BRL-CAD-CHF-CLP-CNY-COP-CZK-DKK-EEK-EUR-GBP-HKD-HUF-IDR-INR-ISK-JPY-KPW-KRW-MXN-NOK-NZD-PEI-PLN-QAR-ROL-RUB-SEK-SGD-TRY-USD-ZAR&calPeriod=10")
+        calendar$Date <- as.POSIXct(strptime(x = calendar$Date,format = "%Y, %B %d,%k",tz = "gmt"),tz = "gmt")
+        calendar$Date <- format(calendar$Date, tz=Sys.timezone(),usetz=TRUE)     
+        calendar
+})
+
+
+        
+output$table <- renderDataTable(DT::datatable(calendar()))
+
 
 
 

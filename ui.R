@@ -26,17 +26,17 @@ shinyUI(fluidPage(
                         #uiOutput("ggvis_ui"),
                         #uiOutput("ggvis_ui1"),
                         dateRangeInput("dates",h5("Date range"),min = Sys.Date()-years(5),max = Sys.Date(), start = "2015-01-01",end = as.character(Sys.Date())),
-                        conditionalPanel("input.tab==1",
+                        conditionalPanel("input.tab==1 || input.tab==2",
                                          sliderInput("smaval",label = h5("Simple Moving Average Days"),min = 1,max = 100,value = 1)
                                          ),
                         conditionalPanel("input.tab==1",
                                          sliderInput("bollval",label = h5("Bollinger Days"),min = 1, max = 100,value = 20)
                                          ),
-                        conditionalPanel("input.tab==1",
+                        conditionalPanel("input.tab==1 || input.tab==2",
                                          sliderInput("emaval",label = h5("Exponential MA Days"),min = 1,max = 100,value = 1)
                                          ),
                         conditionalPanel("input.tab==1",
-                                         checkboxGroupInput("price",inline = TRUE, h5("Indicators"),
+                                         checkboxGroupInput("price",selected = c(1,2,3),inline = TRUE, h5("Indicators"),
                                                             c("MACD" = 1,
                                                               "Elder Rays" = 2,
                                                               "Chai Osc" = 3)
@@ -56,10 +56,11 @@ shinyUI(fluidPage(
                                                       ),
                                      conditionalPanel("input.price[1] == 3 || input.price[0] == 3 || input.price[2] == 3 ",
                                                       ggvisOutput("ggvischai")
-                                     )
+                                                      )
                                      ),
-                            tabPanel("Momentum Indicators",value = 2,ggvisOutput("ggvisrsi"),ggvisOutput("ggvismfi")),
-                            tabPanel("Volume and Shorts",value = 3,ggvisOutput("ggvisvol"))
+                            tabPanel("Momentum Indicators",value = 2,ggvisOutput("ggvis3"),ggvisOutput("ggvisaroon"),ggvisOutput("ggvisrsi"),ggvisOutput("ggvismfi")),
+                            tabPanel("Volume and Shorts",value = 3,ggvisOutput("ggvisvol")),
+                            tabPanel("Economic Calendar",value = 4,div(dataTableOutput("table"),style = "font-size:85%"))
                             )
                 )
         )
