@@ -456,6 +456,22 @@ short_table <-reactive({
 })
 output$shorttable <- renderDataTable(DT::datatable(short_table()))
 
+
+##############################Market Density Plots#####################
+
+
+output$profile1 <- renderPlot({
+        source("marketprofile.R")
+        marketprofile(input$Ticker)
+})
+
+output$profile2 <- renderPlot({
+        source("marketprofile.R")
+        marketprofilevol(input$Ticker)
+})
+
+
+
 }
 )
 
