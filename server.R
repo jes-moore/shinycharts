@@ -94,6 +94,12 @@ shinyServer(function(input, output,session){
                 x <- cbind( x,aroontrend)
                 #############################
                         
+                ######Add SAR########
+                sar <- SAR(x[,c("high","low")])
+                x$sar <- x$close - sar
+                x$sar1 <- sar
+                        
+                #############################
                 
                 cutdata <- x[(x$date >= startdate) & (x$date <= enddate),]
                 
@@ -113,7 +119,7 @@ shinyServer(function(input, output,session){
                 layer_lines(y= ~mavg,stroke := "red",strokeWidth :=1.2 )%>%
                 ################################
                 ######Add Normal Y Axis#########
-                add_axis("y",orient = "left",title = "Share Price")%>%        
+                add_axis("y",orient = "left",title = "",tick_padding = -40)%>%        
                 scale_numeric("y",expand = c(0.01,0.1),)%>%
                 ################################
                 ######Add Normal X Axis#########
@@ -140,23 +146,24 @@ shinyServer(function(input, output,session){
                 layer_lines(stroke := "grey", strokeWidth := 2)%>%
                 ###############################
                  ######Add Normal Y Axis#########
-                add_axis("y",orient = "left",title = "Share Price")%>%        
+                add_axis("y",orient = "left",title = "",tick_padding = -40)%>%        
                 scale_numeric("y",expand = c(0.01,0.1),)%>%
                 ################################
                 ######Add Normal X Axis#########
                 add_axis("x",title = "",orient = "top",title_offset = -10 ,properties = axis_props(labels = list(angle = -90,align = "left")))%>%
                 scale_datetime("x",round = TRUE,expand = c(0,0),label = NULL,clamp = TRUE)%>%        
                 set_options(height = 250, width = 700,resizable = F)%>%
-                        bind_shiny("ggvis3","ggvis_ui3")
+                bind_shiny("ggvis3","ggvis_ui3")
         
         ##Create a thirdSP plot
         cutdata%>%
                 ggvis(x = ~date,y = ~close) %>%
                 ######Add Share ,MA, EMA#######
-                layer_lines(stroke := "grey", strokeWidth := 2)%>%
+                layer_lines(stroke = "Share Price", strokeWidth := 2)%>%
+                layer_points(y = ~sar1,fill := "darkred",size := 10)%>%
                 ###############################
                 ######Add Normal Y Axis#########
-                add_axis("y",orient = "left",title = "Share Price")%>%        
+                add_axis("y",orient = "left",title = "",tick_padding = -40)%>%        
                 scale_numeric("y",expand = c(0.01,0.1),)%>%
                 ################################
                 ######Add Normal X Axis#########
@@ -171,10 +178,12 @@ shinyServer(function(input, output,session){
                 layer_lines(y = ~ Bear, stroke = "Elder Bear")%>%
                 layer_lines(y = ~ Bull,stroke = "Elder Bull")%>%
                 layer_paths(y=0,stroke := "black")%>%
+                
                 #add_axis("x",title = "",,title_offset = -10 ,properties = axis_props(labels = list(angle = -90, align = "right")))%>%
                 hide_axis("x")%>%
+                add_axis("y",tick_padding = -40)%>%
                 scale_datetime("x",round = TRUE,expand = c(0,0),label = NULL,clamp = TRUE)%>%
-                scale_numeric("y",label = "Differential",expand = c(0.01,0.1))%>%
+                scale_numeric("y",label = "",expand = c(0.01,0.1))%>%
                 set_options(height = 125, width = 700,resizable = F)%>%
                 bind_shiny("ggvis1","ggvis_ui1")
         
@@ -187,8 +196,9 @@ shinyServer(function(input, output,session){
                 layer_lines(y = 30,stroke := "green")%>%
                 #add_axis("x",title = "",orient = "top",title_offset = -10 ,properties = axis_props(labels = list(angle = -90,align = "left")))%>%        
                 hide_axis("x")%>%
+                add_axis("y",tick_padding = -40)%>%
                 scale_datetime("x",round = TRUE,expand = c(0,0),label = NULL,clamp = TRUE)%>%
-                scale_numeric("y",label = "Indicator",expand = c(0,0),c(100,0))%>%
+                scale_numeric("y",label = "",expand = c(0,0),c(100,0))%>%
                 set_options(height = 125, width = 700,resizable = F)%>%
                 bind_shiny("ggvisrsi","ggvisrsi_ui")
 
@@ -199,8 +209,9 @@ shinyServer(function(input, output,session){
                 layer_lines(y = ~SIGNAL,stroke = "Signal")%>%
                 layer_lines(y = 0,stroke := "black")%>%
                 hide_axis("x")%>%
+                add_axis("y",tick_padding = -40)%>%
                 scale_datetime("x",round = TRUE,expand = c(0,0),label = NULL,clamp = TRUE)%>%
-                scale_numeric("y",label = "Indicator",expand = c(0.01,0.1))%>%
+                scale_numeric("y",label = "",expand = c(0.01,0.1))%>%
                 set_options(height = 125, width = 700,resizable = F)%>%
                 bind_shiny("ggvismacd","ggvismacd_ui")
 
@@ -215,7 +226,7 @@ shinyServer(function(input, output,session){
         layer_lines(y = ~ aroonDn, stroke = "AroonDn", strokeWidth := 1.5)%>%
         ################################
         ######Add Normal Y Axis#########
-        add_axis("y",orient = "left",title = "Indicator")%>%        
+        add_axis("y",orient = "left",title = "",tick_padding = -40)%>%        
         scale_numeric("y",expand = c(0.01,0.1),)%>%
         ################################
         ######Add Normal X Axis#########
@@ -232,6 +243,7 @@ shinyServer(function(input, output,session){
                 layer_lines(y = ~ Chai, stroke = "Chai Osc/1000")%>%
                 layer_lines(y = ~chaiSMA,stroke = "Signal/1000")%>%
                 layer_lines(y = 0,stroke := "black")%>%
+                add_axis("y",tick_padding = -40)%>%
                 hide_axis("x")%>%
                 scale_datetime("x",round = TRUE,expand = c(0,0),label = NULL,clamp = TRUE)%>%
                 scale_numeric("y",label = "",expand = c(0.01,0.1))%>%
@@ -245,9 +257,10 @@ shinyServer(function(input, output,session){
                 layer_lines(y = 80,stroke := "red")%>%
                 layer_lines(y = 20,stroke := "green")%>%
                 layer_lines(y = 50,stroke := "black")%>%
+                add_axis("y",tick_padding = -40)%>%
                 hide_axis("x")%>%
                 scale_datetime("x",round = TRUE,expand = c(0,0),label = NULL,clamp = TRUE)%>%
-                scale_numeric("y",label = "Indicator",expand = c(0,0),c(100,0))%>%
+                scale_numeric("y",label = "",expand = c(0,0),c(100,0))%>%
                 set_options(height = 125, width = 700,resizable = F)%>%
                 bind_shiny("ggvismfi","ggvismfi_ui")
         
@@ -256,6 +269,7 @@ shinyServer(function(input, output,session){
                 ggvis(x = ~date) %>%
                 layer_lines(y = ~ ADL, stroke = "ADL/1000")%>%
                 hide_axis("x")%>%
+                add_axis("y",tick_padding = -40)%>%
                 scale_datetime("x",round = TRUE,expand = c(0,0),label = NULL,clamp = TRUE)%>%
                 scale_numeric("y",label = "",expand = c(0,0))%>%
                 set_options(height = 125, width = 700,resizable = F)%>%
@@ -266,11 +280,24 @@ shinyServer(function(input, output,session){
                 ggvis(x = ~date) %>%
                 layer_rects(y = ~volume, y2 = 0, fill = "Volume/1000" , width := 5)%>%
                 hide_axis("x")%>%
+                add_axis("y",tick_padding = -40)%>%
                 #add_axis("x",title = "",orient = "top",title_offset = -10 ,properties = axis_props(labels = list(angle = -90,align = "left")))%>%
                 scale_datetime("x",expand = c(0,0))%>%
                 scale_numeric("y",label = "",expand = c(0,0))%>%
                 set_options(height = 125, width = 700,resizable = F)%>%
                 bind_shiny("ggvisvol","ggvisvol_ui")
+        
+        #SAR Plot
+        cutdata%>%
+                ggvis(x = ~date) %>%
+                layer_lines(y = ~ sar, stroke = "SAR")%>%
+                layer_lines(y = 0,stroke := "black")%>%
+                add_axis("y",tick_padding = -40)%>%
+                hide_axis("x")%>%
+                scale_datetime("x",round = TRUE,expand = c(0,0),label = NULL,clamp = TRUE)%>%
+                scale_numeric("y",label = "",expand = c(0,0))%>%
+                set_options(height = 125, width = 700,resizable = F)%>%
+                bind_shiny("ggvissar","ggvissar_ui")
         
         
 
@@ -374,10 +401,60 @@ add_axis("x",title = "",orient = "top",title_offset = -10 ,properties = axis_pro
 # })
 
 
+#####################################Short History and Shorting Information#############################
+short_general <- reactive({
+        shorthistory <- read.csv("http://asic.gov.au/Reports/YTD/2015/RR20150511-001-SSDailyYTD.csv",skip=1,fileEncoding = "UTF-16",sep = "\t")
+        shorthistory <- shorthistory[-(1:2),]
+        shorthistory <- cbind(Row.Names = rownames(shorthistory), shorthistory)
+        rownames(shorthistory) <- NULL
+        colnames(shorthistory) <- substr(colnames(shorthistory),2,11)
+        colnames(shorthistory)[1] <- "Company"
+        colnames(shorthistory)[2] <- "Ticker"
+        shorthist1 <- shorthistory[,1:2]
+        i=3 ##start at first volume column with short data
+        while(i<=length(colnames(shorthistory))){
+                if(i%%2 == 0){
+                        shorthist1 <- cbind(shorthist1,shorthistory[i])
+                        i <- i+1
+                }
+                else{
+                        i <- i+1
+                }
+        }
+        shorthist1
+})
 
+short_specific <- reactive ({
+        startdate <- as.Date(as.Date("1970-01-01") + days(input$dates[1]))
+        enddate <- as.Date(as.Date("1970-01-01") + days(input$dates[2]))
+        shorthist1 <- short_general()
+        melted <- melt(data = shorthist1,id = c("Ticker","Company"))
+        melted$variable <- as.POSIXlt(x = melted$variable,format = "%Y.%m.%d")
+        melted$value[melted$value==""] <- 0.00
+        melted$value <- as.numeric(melted$value)
+        data <- melted
+        data <- data[grep(pattern = input$Ticker,x = data$Ticker),]
+        data$variable <- as.Date(data$variable)
+        cutdata <- data[(data$variable >= startdate) & (data$variable <= enddate),]
+})
 
+#Short Plot
+short_specific%>%
+        ggvis(x = ~variable) %>%
+        layer_lines(y = ~ value, stroke = "Short % of Stock Volume")%>%
+        add_axis("y",tick_padding = -40)%>%
+        hide_axis("x")%>%
+        scale_datetime("x",round = TRUE,expand = c(0,0),label = NULL,clamp = TRUE)%>%
+        scale_numeric("y",label = "",expand = c(0,0))%>%
+        set_options(height = 125, width = 700,resizable = F)%>%
+        bind_shiny("ggvisshort","ggvisshort_ui")
 
-
+short_table <-reactive({
+        data <- short_general()
+        data <- data[,1:7]
+        data
+})
+output$shorttable <- renderDataTable(DT::datatable(short_table()))
 
 }
 )

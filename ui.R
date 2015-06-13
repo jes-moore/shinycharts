@@ -28,7 +28,7 @@ shinyUI(fluidPage(
         sidebarLayout(fluid = TRUE,
                 sidebarPanel(
                         width = 4,
-                        textInput("Ticker",label = h5("Stock Ticker XYZ"),value = "ZIP"),
+                        textInput("Ticker",label = h5("Stock Ticker XYZ"),value = "KAR"),
                         dateRangeInput("dates",h5("Date range"),min = Sys.Date()-years(5),max = Sys.Date(), start = "2015-01-01",end = as.character(Sys.Date()+days(1))),
                         
                         conditionalPanel("input.tab==1 || input.tab==2",
@@ -115,8 +115,9 @@ shinyUI(fluidPage(
                                                       ggvisOutput("ggvismfi")
                                      )
                             ),
-                            tabPanel("Volume and Shorts",value = 3,ggvisOutput("ggvissp3"),ggvisOutput("ggvisvol"),ggvisOutput("ggvisadl")),
-                            tabPanel("Economic Calendar",value = 4,div(dataTableOutput("table"),style = "font-size:85%")),
+                            tabPanel("Volume",value = 3,ggvisOutput("ggvissp3"),ggvisOutput("ggvisshort"),ggvisOutput("ggvissar"),ggvisOutput("ggvisvol"),ggvisOutput("ggvisadl")),
+                            tabPanel("Economic Calendar",value = 4,div(dataTableOutput("table"),style = "font-size:80%")),
+                            tabPanel("Shorting",value = 6,div(dataTableOutput("shorttable"),style = "font-size:80%")),
                             tabPanel("Foreign Exchange",value = 5,
                                      h5(textOutput("ct1")),
                                      ggvisOutput("ggviscomp1"),
