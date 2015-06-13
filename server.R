@@ -470,6 +470,14 @@ output$profile2 <- renderPlot({
         marketprofilevol(input$Ticker)
 })
 
+#############################Announcement Data##########################################
+announce <-reactive({
+        source('announcements_1.R')
+        announce <- announcement_data(input$Ticker)
+        announce
+})
+output$announce <- renderDataTable(DT::datatable(announce()))
+#############################################################################################
 
 
 }

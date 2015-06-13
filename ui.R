@@ -76,8 +76,8 @@ shinyUI(fluidPage(
                                          selectInput("comp3",choices = currencies,selected = "none", label = h5("Comparison Currency")
                                          )
                         ),
-                        ####################################Currency Tab#########################################################
-                        ####################################Currency Tab#########################################################
+                        #########################################################################################################
+                        #########################################################################################################
                         
                         conditionalPanel("input.tab==2",
                                          checkboxGroupInput("momentum",selected = c(1,2,3),inline = TRUE, h5("Indicators"),
@@ -129,7 +129,8 @@ shinyUI(fluidPage(
                                                       ggvisOutput("ggviscomp2")
                                                       )
                                      #dygraphOutput("dygraph",width = 700,height = 250)
-                                     )
+                                     ),
+                            tabPanel("Announcements",value = 8,div(dataTableOutput("announce"),style = "font-size:80%"))
                             )
                 )
         )
