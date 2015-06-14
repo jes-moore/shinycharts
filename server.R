@@ -20,6 +20,12 @@ library(xts)
 
 shinyServer(function(input, output,session){
         input_data <- reactive({
+                withProgress(message = 'Downloading ASX Stock Data', value = 0, {
+                        for (i in 1:15) {
+                                incProgress(1/15)
+                                Sys.sleep(0.25)
+                        }
+                })
                 x <- getSymbols.yahoo(paste(input$Ticker,".AX",sep = ""),
                                       env = .GlobalEnv,return.class = "data.frame",
                                       auto.assign=FALSE)
@@ -38,6 +44,12 @@ shinyServer(function(input, output,session){
               
         cutdata <- reactive({
                 x <- input_data()
+                withProgress(message = 'Computing Indicators', value = 0, {
+                        for (i in 1:15) {
+                                incProgress(1/15)
+                                Sys.sleep(0.25)
+                        }
+                })
                 startdate <- as.Date(as.Date("1970-01-01") + days(input$dates[1]))
                 enddate <- as.Date(as.Date("1970-01-01") + days(input$dates[2]))
                 x$MA <- SMA(x = x$close,n=input$smaval)
@@ -303,6 +315,12 @@ shinyServer(function(input, output,session){
 
 #############################Economic Calendar Data##########################################
 calendar <-reactive({
+        withProgress(message = 'Gathering Worldwide Economic Calendar', value = 0, {
+                for (i in 1:15) {
+                        incProgress(1/15)
+                        Sys.sleep(0.25)
+                }
+        })
         calendar <- read.csv("http://www.myfxbook.com/calendar_statement.csv?start=2015-06-02%2000:00&end=2015-06-04%2000:00&filter=0-1-2-3_ANG-ARS-AUD-BRL-CAD-CHF-CLP-CNY-COP-CZK-DKK-EEK-EUR-GBP-HKD-HUF-IDR-INR-ISK-JPY-KPW-KRW-MXN-NOK-NZD-PEI-PLN-QAR-ROL-RUB-SEK-SGD-TRY-USD-ZAR&calPeriod=10")
         calendar$Date <- as.POSIXct(strptime(x = calendar$Date,format = "%Y, %B %d,%k",tz = "gmt"),tz = "gmt")
         calendar$Date <- format(calendar$Date, tz=Sys.timezone(),usetz=TRUE)     
@@ -462,33 +480,122 @@ short_table <-reactive({
         data <- data[,1:7]
         data
 })
-output$shorttable <- renderDataTable(DT::datatable(short_table()))
+output$shorttable <- renderDataTable({
+        withProgress(message = 'Gathering Shorting Data', value = 0, {
+                for (i in 1:10) {
+                        incProgress(1/10)
+                        Sys.sleep(time = 0.1)
+                }
+        })
+        DT::datatable(short_table())
+        })
 
 
 ##############################Market Density Plots#####################
+#############################################################################################
 
 
 output$profile1 <- renderPlot({
         source("marketprofile.R")
+        withProgress(message = 'Generating Closing Profile', value = 0, {
+                for (i in 1:5) {
+                        incProgress(1/5)
+                        Sys.sleep(time = 0.1)
+                }
+        })
         marketprofile(input$Ticker)
 })
 
 output$profile2 <- renderPlot({
         source("marketprofile.R")
+        withProgress(message = 'Generating Volume Profile', value = 0, {
+                for (i in 1:5) {
+                        incProgress(1/5)
+                        Sys.sleep(time = 0.1)
+                }
+        })
         marketprofilevol(input$Ticker)
 })
 
+#############################################################################################
 #############################Announcement Data##########################################
 announce <-reactive({
         source('announcements_1.R')
         announce <- announcement_data(input$Ticker)
         announce
 })
-output$announce <- renderDataTable(DT::datatable(announce()))
+output$announce <- renderDataTable({
+        withProgress(message = 'Gathering Announcements', value = 0, {
+                for (i in 1:5) {
+                        incProgress(1/5)
+                        Sys.sleep(time = 0.1)
+                }
+                     })
+        DT::datatable(announce())
+        })
+#############################################################################################
+#############################################################################################
+
+
+
+#############################################################################################
+#############################Stock Ratio Data##########################################
+ratios <-reactive({
+        source('stockratios.R')
+        ratios <- stock_ratios()
+        ratios
+})
+output$ratios <- renderDataTable({
+        withProgress(message = 'Calculating Ratios', value = 0, {
+                for (i in 1:5) {
+                        incProgress(1/5)
+                        Sys.sleep(time = 0.1)
+                }
+        })
+        DT::datatable(ratios())
+        })
+#############################################################################################
+#############################################################################################
+
+#############################################################################################
+#############################Stock Data##########################################
+stats_ratio <-reactive({
+        source('stockratios.R')
+        stats <- stock_ratios()
+        stats
+})
+
+tab_stats <-reactive({
+        source('stockratios.R')
+        stats <- tab_stats(input$Ticker)
+        stats
+})
+
+output$stats <- renderDataTable({
+        withProgress(message = 'Collating Stats', value = 0, {
+                for (i in 1:5) {
+                        incProgress(1/5)
+                        Sys.sleep(time = 0.1)
+                }
+        })
+        DT::datatable(tab_stats())
+})
+#############################################################################################
+#############################################################################################
+
+#############################################################################################
+#############################Sector Analysis##########################################
+
+output$sector <- renderGvis({
+        source('sectoranalysis.R')
+        c <- plotsector(sector = "energy",data = stats_ratio())
+})
+#############################################################################################
 #############################################################################################
 
 
 }
 )
+
 
  
