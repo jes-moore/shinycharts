@@ -2,8 +2,7 @@ announcement_data <- function(Ticker = "ZIP"){
                 ##Gather company names, ticker, and market cap for a metal
         library(rvest)
         library(plyr)
-        library(XML)
-        url <- paste(sep = "","http://www.asx.com.au/asx/statistics/announcements.do?by=asxCode&asxCode=",Ticker,"&timeframe=D&period=M6")
+        url <- paste(sep = "","http://www.asx.com.au/asx/statistics/announcements.do?by=asxCode&asxCode=","ZIP","&timeframe=D&period=M6")
         html <- rvest::html(url)
         htmlnodes <- html_nodes(x = html, css = "td")
         data <- html_text(htmlnodes, trim = TRUE)
@@ -28,7 +27,38 @@ announcement_data <- function(Ticker = "ZIP"){
         }##End While
         announcements <- cbind(data1[,c(1,3,4,5)],Links = links[,2])
         announcements$Date <- as.Date(strptime(x = announcements$Date,format = "%d/%m/%Y"))
-
-        announcements
+        
+        ##################################Get SP Data#########################################
+        x <- getSymbols.yahoo(paste("ZIP",".AX",sep = ""),
+                              env = .GlobalEnv,return.class = "data.frame",
+                              auto.assign=FALSE)
+        #the below is done redundantly for ease of maintenance later on
+        #First, strip OHLC data (need to vectorize)
+        date <- as.Date(rownames(x))
+        open <- as.vector(Op(x))
+        high <- as.vector(Hi(x))
+        low <- as.vector(Lo(x))
+        close <- as.vector(Cl(x))
+        volume <- as.vector(Vo(x))
+        #Then build the data frame
+        xSubset <-data.frame('date'=date,'open'=open,'high'= high,'low'=low,'close'=close,"volume"=volume)
+        xSubset
+        announcements$Close <- NA
+        i <- 1
+        while(i<=nrow(announcements)){
+                announcements$Close[i] <- xSubset[grep(pattern = announcements$Date[i],x = xSubset$date),5]
+                i <- i+1        
+        }##End While
+        
+        
+        list(a = announcements,b = xSubset)
 }
 
+announcement_plot <- function(Ticker = "ZIP"){
+        
+
+        
+        
+        
+        
+}

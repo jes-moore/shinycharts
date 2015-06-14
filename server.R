@@ -436,6 +436,7 @@ short_specific <- reactive ({
         data <- data[grep(pattern = input$Ticker,x = data$Ticker),]
         data$variable <- as.Date(data$variable)
         cutdata <- data[(data$variable >= startdate) & (data$variable <= enddate),]
+        
 })
 
 #Short Plot
@@ -447,7 +448,14 @@ short_specific%>%
         scale_datetime("x",round = TRUE,expand = c(0,0),label = NULL,clamp = TRUE)%>%
         scale_numeric("y",label = "",expand = c(0,0))%>%
         set_options(height = 125, width = 700,resizable = F)%>%
+        add_tooltip(all_values,"hover")%>%
+        #add_tooltip(all_values,"click")%>%
         bind_shiny("ggvisshort","ggvisshort_ui")
+
+all_values <- function(x) {
+        if(is.null(x)) return(NULL)
+        paste0(names(x), ": ", format(x), collapse = "<br />")
+}
 
 short_table <-reactive({
         data <- short_general()
