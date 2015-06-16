@@ -16,6 +16,7 @@ library(shiny)
 library(DT)
 library(ggvis)
 library(dygraphs)
+options(RCHART_LIB = 'MORRIS')
 currencies = sort(c("XAF", "ARS", "AUD", "BSD", "BRL", "BGN", "CAD", "CLP", "CNY", "COP", "HRK",  "CYP", "CZK", "DKK", "LTC", "BTC", "XCD", "EEK", "EUR", "FJD", 
                "XPF", "GHS", "GTQ", "HNL", "HKD", "HUF", "ISK", "INR", "IDR",  "ILS",  "JMD",  "JPY", "LVL", "LTL", "MYR", "MXN", "MAD", "MMK", "ANG", "NZD", 
                "NOK", "PKR", "PAB", "PEN", "PHP", "PLN", "Gold","QAR", "RON",  "RUB",  "SAR",  "RSD", "SGD", "ZAR", "KRW", "LKR", "SEK", "CHF", "TWD", "THB", 
@@ -30,6 +31,7 @@ shinyUI(navbarPage(title = "Intelligent Pursuit",
                         sidebarPanel(
                                 width = 3,
                                 textInput("Ticker",label = h5("Stock Ticker XYZ"),value = "KAR"),
+                                submitButton(text = "Apply Changes"),
                                 conditionalPanel("input.tab==1 || input.tab==2 || input.tab==3",
                                                  dateRangeInput("dates",h5("Date range"),min = Sys.Date()-years(5),max = Sys.Date(), start = "2015-01-01",end = as.character(Sys.Date()+days(1)))
                                                  ),
@@ -93,6 +95,7 @@ shinyUI(navbarPage(title = "Intelligent Pursuit",
                         tabsetPanel(type = "tabs",id = "tab",
                                     tabPanel("Price Indicators",
                                              value = 1,
+                                             #showOutput("rchart1", "morris"),
                                              ggvisOutput("ggvis"),
                                              conditionalPanel("input.price[0] == 1",
                                                               ggvisOutput("ggvismacd")
@@ -131,7 +134,7 @@ shinyUI(navbarPage(title = "Intelligent Pursuit",
 #                                              
 #                                              ),
                                     tabPanel("Announcements",value = 8,div(dataTableOutput("announce"),style = "font-size:80%")),
-                                    tabPanel("Statistics",value = 3,div(dataTableOutput("stats"),style = "font-size:80%"))
+                                    tabPanel("Statistics",value = 9,div(dataTableOutput("stats"),style = "font-size:80%"))
                                     )
                         )##Close Mainpanel
                 )##Close Sidebar Layout
@@ -140,13 +143,35 @@ shinyUI(navbarPage(title = "Intelligent Pursuit",
                  value = "FA",
                  bootstrapPage(mainPanel(
                                        tabsetPanel(type = "tabs",id = "fa",
-                                                   tabPanel("Economic Calendar",value = 1,div(dataTableOutput("table"),style = "font-size:80%")),
+                                                   tabPanel("Sector Analysis",value = 4,
+                                                            submitButton(text = "Apply Changes"),
+                                                            selectInput(inputId = "sector",
+                                                                        label = "Sector",
+                                                                        choices = read.csv("sectors.csv",stringsAsFactors = FALSE,header = TRUE)
+                                                            ),
+                                                            selectInput(inputId = "sector_ratio1",
+                                                                        selected = "Enterprise.Value",
+                                                                        label = "Comparative Ratio 1",
+                                                                        choices = c("Market.Cap","Enterprise.Value",'Trailing.P.E' , "Forward.P.E","PEG.Ratio","Price.Sales","Price.Book","Enterprise.Value.Revenue","Enterprise.Value.EBITDA","Total.Cash.Per.Share","Total.Debt.Equity")
+                                                                        ),
+                                                            htmlOutput("sector1"),
+                                                            selectInput(inputId = "sector_ratio2",
+                                                                        label = "Comparative Ratio 2",
+                                                                        choices = c("Market.Cap","Enterprise.Value",'Trailing.P.E' , "Forward.P.E","PEG.Ratio","Price.Sales","Price.Book","Enterprise.Value.Revenue","Enterprise.Value.EBITDA","Total.Cash.Per.Share","Total.Debt.Equity")),
+                                                            htmlOutput("sector2")
+                                                            ),#close tabpbanel
+                                                   tabPanel("Economic Calendar" , value = 1,div(dataTableOutput("table"),style = "font-size:80%")),
                                                    tabPanel("Shorting",value = 2,div(dataTableOutput("shorttable"),style = "font-size:80%")),
-                                                   tabPanel("Stock Ratios",value = 3,htmlOutput("sector"),div(dataTableOutput("ratios"),style = "font-size:80%"))
-                                                   )
+                                                   tabPanel("Stock Ratios",value = 3,div(dataTableOutput("ratios"),style = "font-size:80%")),
+                                                   tabPanel("Upcoming Floats",value = 5,div(dataTableOutput("floats"),style = "font-size:80%")),
+                                                   tabPanel("Recent Floats",value = 6,div(dataTableOutput("recent_floats"),style = "font-size:80%"))
+                                                   )#Close tabsetpanel
                                )##Close Mainpanel2
                  )##Close Bootstrappage
         )#Close tabPanel2
         )##Close Navbar Page
 )##Close Shiny UI
+
+
+
 

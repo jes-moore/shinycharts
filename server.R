@@ -1,3 +1,5 @@
+###Add Share Price Comparer??
+
 
 # This is the server logic for a Shiny web application.
 # You can find out more about building applications with Shiny here:
@@ -17,13 +19,14 @@ library(DT)
 library(ggvis)
 library(reshape2)
 library(xts)
+library(googleVis)
 
 shinyServer(function(input, output,session){
         input_data <- reactive({
                 withProgress(message = 'Downloading ASX Stock Data', value = 0, {
                         for (i in 1:15) {
                                 incProgress(1/15)
-                                Sys.sleep(0.25)
+                                Sys.sleep(0.1)
                         }
                 })
                 x <- getSymbols.yahoo(paste(input$Ticker,".AX",sep = ""),
@@ -47,7 +50,7 @@ shinyServer(function(input, output,session){
                 withProgress(message = 'Computing Indicators', value = 0, {
                         for (i in 1:15) {
                                 incProgress(1/15)
-                                Sys.sleep(0.25)
+                                Sys.sleep(0.1)
                         }
                 })
                 startdate <- as.Date(as.Date("1970-01-01") + days(input$dates[1]))
@@ -114,9 +117,21 @@ shinyServer(function(input, output,session){
                 #############################
                 
                 cutdata <- x[(x$date >= startdate) & (x$date <= enddate),]
-                
+        
+        
         })
 
+        
+#         output$rchart1 <- renderChart2({
+#                 data <- cutdata()
+#                 data <- transform(data, date = as.character(date))
+#                 m1 <- mPlot(x = "date", y = c("close","MA","EMA","up","dn","mavg"), type = "Line", data = data)
+#                 m1$set(pointSize = 0, lineWidth = 1)
+#                 return(m1)
+#                 
+#         })
+
+        
         ##SP plot
         cutdata%>%
                 ggvis(x = ~date,y = ~close) %>%
@@ -565,7 +580,7 @@ stats_ratio <-reactive({
         stats
 })
 
-tab_stats <-reactive({
+asx_stats <-reactive({
         source('stockratios.R')
         stats <- tab_stats(input$Ticker)
         stats
@@ -578,7 +593,7 @@ output$stats <- renderDataTable({
                         Sys.sleep(time = 0.1)
                 }
         })
-        DT::datatable(tab_stats())
+        DT::datatable(asx_stats())
 })
 #############################################################################################
 #############################################################################################
@@ -586,16 +601,51 @@ output$stats <- renderDataTable({
 #############################################################################################
 #############################Sector Analysis##########################################
 
-output$sector <- renderGvis({
+output$sector1 <- renderGvis({
         source('sectoranalysis.R')
-        c <- plotsector(sector = "energy",data = stats_ratio())
+        withProgress(message = 'Rendering Plot 1', value = 0, {
+                for (i in 1:5) {
+                        incProgress(1/5)
+                        Sys.sleep(time = 0.1)
+                }
+        })
+        c <- plotsector(sector = input$sector,data = stats_ratio(),ratio = input$sector_ratio1)
+})
+
+output$sector2 <- renderGvis({
+        source('sectoranalysis.R')
+        withProgress(message = 'Rendering Plot 2', value = 0, {
+                for (i in 1:5) {
+                        incProgress(1/5)
+                        Sys.sleep(time = 0.1)
+                }
+        })
+        c <- plotsector(sector = input$sector,data = stats_ratio(),ratio = input$sector_ratio2)
 })
 #############################################################################################
 #############################################################################################
 
+output$floats <- renderDataTable({
+        source('upcoming_floats.R')
+        withProgress(message = 'Getting Upcoming Floats', value = 0, {
+                for (i in 1:5) {
+                        incProgress(1/5)
+                        Sys.sleep(time = 0.1)
+                }
+        })
+        DT::datatable(upcoming_floats())
+})
+
+output$recent_floats <- renderDataTable({
+        source('upcoming_floats.R')
+        withProgress(message = 'Getting Upcoming Floats', value = 0, {
+                for (i in 1:5) {
+                        incProgress(1/5)
+                        Sys.sleep(time = 0.1)
+                }
+        })
+        DT::datatable(recent_floats())
+})
 
 }
 )
-
-
- 

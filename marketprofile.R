@@ -14,6 +14,7 @@ marketprofile <- function(Ticker){
         
         cbPalette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00")
         
+        
         a <- ggplot(data = melted) + 
                 geom_histogram(aes(x = value,fill = Time),binwidth = (range(melted$value)[2] - range(melted$value)[1])/30)+
                 facet_grid(. ~ Date,scales = "free_y") +
@@ -23,9 +24,11 @@ marketprofile <- function(Ticker){
                 scale_x_continuous(breaks = round(seq(min(melted$value), max(melted$value),length.out = 10,),digits = 3)) +       
                 coord_flip()
         
-        a
+        a  
         
 }
+
+
 
 marketprofilevol <- function(Ticker){
         ###############Market Profile#########################
