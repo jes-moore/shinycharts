@@ -1,5 +1,6 @@
 ###Add Share Price Comparer??
 
+##change to select box for dates
 
 # This is the server logic for a Shiny web application.
 # You can find out more about building applications with Shiny here:
@@ -344,82 +345,82 @@ calendar <-reactive({
 output$table <- renderDataTable(DT::datatable(calendar()))
 #############################################################################################
        
-##################################Currency Pain 1##############################################
-readcurrency_data1 <-reactive({
-        currency_data1 <- getSymbols(paste(input$base,"/",input$comp1,sep = ""),src="oanda",env = .GlobalEnv,return.class = "data.frame",auto.assign=FALSE)
-        currency_data1 <- data.frame(date = as.Date(rownames(currency_data1)),exchange = currency_data1)
-        rownames(currency_data1) <- NULL
-        colnames(currency_data1) <- c("date","exchange")
-        currency_data1
-})
-
-currency_data1 <-reactive({
-        currency_data1 <- getSymbols(paste(input$base,"/",input$comp1,sep = ""),src="oanda",env = .GlobalEnv,return.class = "data.frame",auto.assign=FALSE)
-        currency_data1 <- data.frame(date = as.Date(rownames(currency_data1)),exchange = currency_data1)
-        rownames(currency_data1) <- NULL
-        colnames(currency_data1) <- c("date","exchange")
-        startdate <- as.Date(as.Date("1970-01-01") + days(input$dates[1]))
-        enddate <- as.Date(as.Date("1970-01-01") + days(input$dates[2]))
-        currency_data1 <- currency_data1[(currency_data1$date >= startdate) & (currency_data1$date <= enddate),]
-})
-
-output$ct1 <- renderText({
-        paste(input$base,"/",input$comp1,"")
-})
-
-        ##plot currency data
-        currency_data1%>%
-        ggvis(x = ~date,y = ~exchange ) %>%
-        layer_lines(stroke := "red", strokeWidth := 2)%>%
-        ###############################
-        ######Add Normal Y Axis#########
-        add_axis("y",orient = "left",title = "")%>%        
-        scale_numeric("y",expand = c(0.01,0.1),)%>%
-        ################################
-        ######Add Normal X Axis#########
-        add_axis("x",title = "",orient = "top",title_offset = -10 ,properties = axis_props(labels = list(angle = -90,align = "left")))%>%
-        scale_datetime("x",round = TRUE,expand = c(0,0),label = NULL,clamp = TRUE)%>%        
-        set_options(height = 250, width = 700,resizable = F)%>%
-        bind_shiny("ggviscomp1","ggviscomp1_ui")
+# ##################################Currency Pain 1##############################################
+# readcurrency_data1 <-reactive({
+#         currency_data1 <- getSymbols(paste(input$base,"/",input$comp1,sep = ""),src="oanda",env = .GlobalEnv,return.class = "data.frame",auto.assign=FALSE)
+#         currency_data1 <- data.frame(date = as.Date(rownames(currency_data1)),exchange = currency_data1)
+#         rownames(currency_data1) <- NULL
+#         colnames(currency_data1) <- c("date","exchange")
+#         currency_data1
+# })
+# 
+# currency_data1 <-reactive({
+#         currency_data1 <- getSymbols(paste(input$base,"/",input$comp1,sep = ""),src="oanda",env = .GlobalEnv,return.class = "data.frame",auto.assign=FALSE)
+#         currency_data1 <- data.frame(date = as.Date(rownames(currency_data1)),exchange = currency_data1)
+#         rownames(currency_data1) <- NULL
+#         colnames(currency_data1) <- c("date","exchange")
+#         startdate <- as.Date(as.Date("1970-01-01") + days(input$dates[1]))
+#         enddate <- as.Date(as.Date("1970-01-01") + days(input$dates[2]))
+#         currency_data1 <- currency_data1[(currency_data1$date >= startdate) & (currency_data1$date <= enddate),]
+# })
+# 
+# output$ct1 <- renderText({
+#         paste(input$base,"/",input$comp1,"")
+# })
+# 
+#         ##plot currency data
+#         currency_data1%>%
+#         ggvis(x = ~date,y = ~exchange ) %>%
+#         layer_lines(stroke := "red", strokeWidth := 2)%>%
+#         ###############################
+#         ######Add Normal Y Axis#########
+#         add_axis("y",orient = "left",title = "")%>%        
+#         scale_numeric("y",expand = c(0.01,0.1),)%>%
+#         ################################
+#         ######Add Normal X Axis#########
+#         add_axis("x",title = "",orient = "top",title_offset = -10 ,properties = axis_props(labels = list(angle = -90,align = "left")))%>%
+#         scale_datetime("x",round = TRUE,expand = c(0,0),label = NULL,clamp = TRUE)%>%        
+#         set_options(height = 250, width = 700,resizable = F)%>%
+#         bind_shiny("ggviscomp1","ggviscomp1_ui")
 #######################################################################################################        
  
-##################################Currency Pain 2##############################################
-readcurrency_data2 <-reactive({
-        currency_data2 <- getSymbols(paste(input$base,"/",input$comp2,sep = ""),src="oanda",env = .GlobalEnv,return.class = "data.frame",auto.assign=FALSE)
-        currency_data2 <- data.frame(date = as.Date(rownames(currency_data2)),exchange = currency_data2)
-        rownames(currency_data2) <- NULL
-        colnames(currency_data2) <- c("date","exchange")
-        currency_data2
-})
-
-currency_data2 <-reactive({
-        currency_data2 <- getSymbols(paste(input$base,"/",input$comp2,sep = ""),src="oanda",env = .GlobalEnv,return.class = "data.frame",auto.assign=FALSE)
-        currency_data2 <- data.frame(date = as.Date(rownames(currency_data2)),exchange = currency_data2)
-        rownames(currency_data2) <- NULL
-        colnames(currency_data2) <- c("date","exchange")
-        startdate <- as.Date(as.Date("1970-01-01") + days(input$dates[1]))
-        enddate <- as.Date(as.Date("1970-01-01") + days(input$dates[2]))
-        currency_data2 <- currency_data2[(currency_data2$date >= startdate) & (currency_data2$date <= enddate),]
-})
-
-output$ct2 <- renderText({
-        paste(input$base,"/",input$comp2,"")
-})
-
-##plot currency data
-currency_data2%>%
-        ggvis(x = ~date,y = ~exchange ) %>%
-        layer_lines(stroke := "red", strokeWidth := 2)%>%
-        ###############################
-######Add Normal Y Axis#########
-add_axis("y",orient = "left",title = "")%>%        
-        scale_numeric("y",expand = c(0.01,0.1),)%>%
-        ################################
-######Add Normal X Axis#########
-add_axis("x",title = "",orient = "top",title_offset = -10 ,properties = axis_props(labels = list(angle = -90,align = "left")))%>%
-        scale_datetime("x",round = TRUE,expand = c(0,0),label = NULL,clamp = TRUE)%>%        
-        set_options(height = 250, width = 700,resizable = F)%>%
-        bind_shiny("ggviscomp2","ggviscomp2_ui")
+# ##################################Currency Pain 2##############################################
+# readcurrency_data2 <-reactive({
+#         currency_data2 <- getSymbols(paste(input$base,"/",input$comp2,sep = ""),src="oanda",env = .GlobalEnv,return.class = "data.frame",auto.assign=FALSE)
+#         currency_data2 <- data.frame(date = as.Date(rownames(currency_data2)),exchange = currency_data2)
+#         rownames(currency_data2) <- NULL
+#         colnames(currency_data2) <- c("date","exchange")
+#         currency_data2
+# })
+# 
+# currency_data2 <-reactive({
+#         currency_data2 <- getSymbols(paste(input$base,"/",input$comp2,sep = ""),src="oanda",env = .GlobalEnv,return.class = "data.frame",auto.assign=FALSE)
+#         currency_data2 <- data.frame(date = as.Date(rownames(currency_data2)),exchange = currency_data2)
+#         rownames(currency_data2) <- NULL
+#         colnames(currency_data2) <- c("date","exchange")
+#         startdate <- as.Date(as.Date("1970-01-01") + days(input$dates[1]))
+#         enddate <- as.Date(as.Date("1970-01-01") + days(input$dates[2]))
+#         currency_data2 <- currency_data2[(currency_data2$date >= startdate) & (currency_data2$date <= enddate),]
+# })
+# 
+# output$ct2 <- renderText({
+#         paste(input$base,"/",input$comp2,"")
+# })
+# 
+# ##plot currency data
+# currency_data2%>%
+#         ggvis(x = ~date,y = ~exchange ) %>%
+#         layer_lines(stroke := "red", strokeWidth := 2)%>%
+#         ###############################
+# ######Add Normal Y Axis#########
+# add_axis("y",orient = "left",title = "")%>%        
+#         scale_numeric("y",expand = c(0.01,0.1),)%>%
+#         ################################
+# ######Add Normal X Axis#########
+# add_axis("x",title = "",orient = "top",title_offset = -10 ,properties = axis_props(labels = list(angle = -90,align = "left")))%>%
+#         scale_datetime("x",round = TRUE,expand = c(0,0),label = NULL,clamp = TRUE)%>%        
+#         set_options(height = 250, width = 700,resizable = F)%>%
+#         bind_shiny("ggviscomp2","ggviscomp2_ui")
 #######################################################################################################  
 
 # currency_data3 <-reactive({
@@ -645,6 +646,17 @@ output$recent_floats <- renderDataTable({
                 }
         })
         DT::datatable(recent_floats())
+})
+
+output$dividends <- renderDataTable({
+        source('dividends.R')
+        withProgress(message = 'Getting Dividend Data', value = 0, {
+                for (i in 1:5) {
+                        incProgress(1/5)
+                        Sys.sleep(time = 0.1)
+                }
+        })
+        DT::datatable(dividends())
 })
 
 }

@@ -31,7 +31,7 @@ shinyUI(navbarPage(title = "Intelligent Pursuit",
                         sidebarPanel(
                                 width = 3,
                                 textInput("Ticker",label = h5("Stock Ticker XYZ"),value = "KAR"),
-                                submitButton(text = "Apply Changes"),
+#                                 actionButton("changeticker","Update"),
                                 conditionalPanel("input.tab==1 || input.tab==2 || input.tab==3",
                                                  dateRangeInput("dates",h5("Date range"),min = Sys.Date()-years(5),max = Sys.Date(), start = "2015-01-01",end = as.character(Sys.Date()+days(1)))
                                                  ),
@@ -61,25 +61,25 @@ shinyUI(navbarPage(title = "Intelligent Pursuit",
                                 
                                 ####################################Currency Tab#########################################################
                                 ####################################Currency Tab#########################################################
-                                conditionalPanel("input.tab==5",
-                                                 selectInput("base",choices = currencies,selected = "USD", label = h5("Base Currency")
-                                                           )
-                                ),
-                                
-                                conditionalPanel("input.tab==5",
-                                                 selectInput("comp1",choices = currencies,selected = "AUD", label = h5("Comparison Currency")
-                                                             )
-                                ),
-                                
-                                conditionalPanel("input.tab==5",
-                                                 selectInput("comp2",choices = currencies,selected = "none", label = h5("Comparison Currency")
-                                                 )
-                                ),
-                                
-                                conditionalPanel("input.tab==5",
-                                                 selectInput("comp3",choices = currencies,selected = "none", label = h5("Comparison Currency")
-                                                 )
-                                ),
+#                                 conditionalPanel("input.tab==5",
+#                                                  selectInput("base",choices = currencies,selected = "USD", label = h5("Base Currency")
+#                                                            )
+#                                 ),
+#                                 
+#                                 conditionalPanel("input.tab==5",
+#                                                  selectInput("comp1",choices = currencies,selected = "AUD", label = h5("Comparison Currency")
+#                                                              )
+#                                 ),
+#                                 
+#                                 conditionalPanel("input.tab==5",
+#                                                  selectInput("comp2",choices = currencies,selected = "none", label = h5("Comparison Currency")
+#                                                  )
+#                                 ),
+#                                 
+#                                 conditionalPanel("input.tab==5",
+#                                                  selectInput("comp3",choices = currencies,selected = "none", label = h5("Comparison Currency")
+#                                                  )
+#                                 ),
                                 #########################################################################################################
                                 #########################################################################################################
                                 
@@ -144,7 +144,7 @@ shinyUI(navbarPage(title = "Intelligent Pursuit",
                  bootstrapPage(mainPanel(
                                        tabsetPanel(type = "tabs",id = "fa",
                                                    tabPanel("Sector Analysis",value = 4,
-                                                            submitButton(text = "Apply Changes"),
+#                                                             submitButton(text = "Apply Changes"),
                                                             selectInput(inputId = "sector",
                                                                         label = "Sector",
                                                                         choices = read.csv("sectors.csv",stringsAsFactors = FALSE,header = TRUE)
@@ -164,7 +164,8 @@ shinyUI(navbarPage(title = "Intelligent Pursuit",
                                                    tabPanel("Shorting",value = 2,div(dataTableOutput("shorttable"),style = "font-size:80%")),
                                                    tabPanel("Stock Ratios",value = 3,div(dataTableOutput("ratios"),style = "font-size:80%")),
                                                    tabPanel("Upcoming Floats",value = 5,div(dataTableOutput("floats"),style = "font-size:80%")),
-                                                   tabPanel("Recent Floats",value = 6,div(dataTableOutput("recent_floats"),style = "font-size:80%"))
+                                                   tabPanel("Recent Floats",value = 6,div(dataTableOutput("recent_floats"),style = "font-size:80%")),
+                                                   tabPanel("Dividends",value = 7,div(dataTableOutput("dividends"),style = "font-size:80%"))
                                                    )#Close tabsetpanel
                                )##Close Mainpanel2
                  )##Close Bootstrappage

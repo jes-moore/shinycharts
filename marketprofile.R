@@ -60,3 +60,28 @@ marketprofilevol <- function(Ticker){
         
 }
 
+
+marketprofilehighchart <- function(Ticker){
+        ###############Market Profile#########################
+        stockdata<-read.csv(paste("http://chartapi.finance.yahoo.com/instrument/1.0/",Ticker,".AX/chartdata;type=quote;range=",5,"d/csv",sep = ""),
+                            skip=22,
+                            header = FALSE,
+                            stringsAsFactors = FALSE)
+        stockdata[,1] <- as.POSIXct(stockdata$V1,origin = "1970-01-01")
+        colnames(stockdata) <- c("Timestamp","Close","High","Low","Open","Volume")
+        stockdata$Date <- as.Date(stockdata$Timestamp)
+        stockdata <- dplyr::group_by(.data = stockdata,Date)
+        melted <- melt(data = stockdata,id.vars = c("Timestamp","Date","Volume"),measure.vars = "Close")
+        melted$Time <- cut(melted$Timestamp, breaks="hour")
+        melted$Time <- strftime(melted$Time, format="%H:%M:%S") 
+        melted <- count(melted, c("Date", "Time","value"))
+        melted <- melted[melted$Date == Sys.Date(),]
+        #Create Highchart plot
+        m1 <- hPlot(data = melted,freq ~ value ,type = "bar", group = "Time", stacking = "normal")
+        m1$plotOptions(series = list(stacking = 'normal'))
+        m1$set(width = 750, height = 400)
+        m1
+        
+
+}
+
