@@ -651,7 +651,7 @@ output$recent_floats <- renderDataTable({
 output$dividends <- renderDataTable({
         source('dividends.R')
         withProgress(message = 'Getting Dividend Data', value = 0, {
-                for (i in 1:5) {
+                for (i in 1:5) {##Open
                         incProgress(1/5)
                         Sys.sleep(time = 0.1)
                 }
@@ -659,5 +659,26 @@ output$dividends <- renderDataTable({
         DT::datatable(dividends())
 })
 
-}
-)
+###############Section for evaluating indices#########################
+
+source("compare_indices.R")
+##Gather indices together And
+##Create Chart JS and HTML with rCharts
+# IndicesPlots <- compare_indices()
+
+##Render Plots for output
+output$hc1 <- renderChart2({
+        hc1 <- compare_indices()
+        return(hc1)
+})
+# output$hc2 <- renderChart({
+#         hc2 <- IndicesPlots[[2]]
+#         return(hc2)
+# })
+# output$hc3 <- renderChart({
+#         hc3 <- IndicesPlots[[3]]
+#         return(hc3)
+# })
+
+
+})

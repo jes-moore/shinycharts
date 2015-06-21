@@ -16,7 +16,7 @@ library(shiny)
 library(DT)
 library(ggvis)
 library(dygraphs)
-options(RCHART_LIB = 'MORRIS')
+options(RCHART_LIB = 'HIGHCHARTS')
 currencies = sort(c("XAF", "ARS", "AUD", "BSD", "BRL", "BGN", "CAD", "CLP", "CNY", "COP", "HRK",  "CYP", "CZK", "DKK", "LTC", "BTC", "XCD", "EEK", "EUR", "FJD", 
                "XPF", "GHS", "GTQ", "HNL", "HKD", "HUF", "ISK", "INR", "IDR",  "ILS",  "JMD",  "JPY", "LVL", "LTL", "MYR", "MXN", "MAD", "MMK", "ANG", "NZD", 
                "NOK", "PKR", "PAB", "PEN", "PHP", "PLN", "Gold","QAR", "RON",  "RUB",  "SAR",  "RSD", "SGD", "ZAR", "KRW", "LKR", "SEK", "CHF", "TWD", "THB", 
@@ -165,7 +165,8 @@ shinyUI(navbarPage(title = "Intelligent Pursuit",
                                                    tabPanel("Stock Ratios",value = 3,div(dataTableOutput("ratios"),style = "font-size:80%")),
                                                    tabPanel("Upcoming Floats",value = 5,div(dataTableOutput("floats"),style = "font-size:80%")),
                                                    tabPanel("Recent Floats",value = 6,div(dataTableOutput("recent_floats"),style = "font-size:80%")),
-                                                   tabPanel("Dividends",value = 7,div(dataTableOutput("dividends"),style = "font-size:80%"))
+                                                   tabPanel("Dividends",value = 7,div(dataTableOutput("dividends"),style = "font-size:80%")),
+                                                   tabPanel("Indices",value = 8,showOutput("hc1", "Highcharts"))
                                                    )#Close tabsetpanel
                                )##Close Mainpanel2
                  )##Close Bootstrappage

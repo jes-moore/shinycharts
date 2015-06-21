@@ -38,7 +38,7 @@ indices_codes <- function(){
 }
 
 
-compare_indices<- function(start_date = Sys.Date()-months(36),end_date = Sys.Date()){
+compare_indices<- function(start_date = Sys.Date()-months(24),end_date = Sys.Date()){
         library(lubridate)
         library(rCharts)
         library(plyr)
@@ -48,24 +48,38 @@ compare_indices<- function(start_date = Sys.Date()-months(36),end_date = Sys.Dat
         tickers <- as.character(tickers)
         data1 <- get_data(tickers[1],start_date,end_date)
         i <- 2
-        while(i <= length(tickers)){
+        while(i <= 8){
                 data <- get_data(tickers[i],start_date,end_date)
                 data1 <- merge(x = data,y = data1,by = "date")
                 i <- i+1
         }
         
-        data <- data1
-        data <- transform(data, date = as.numeric(date) * 86400000)
-
-        data <- melt(data = data,id.vars = "date")
-        closeData <- data[grep(pattern = "return",x = data$variable,ignore.case = TRUE),]
-        colnames(closeData) <- c("date","Stock","%Return")
-        closeData$Stock <- as.character(closeData$Stock)
-        closeData$Stock <- substr(closeData$Stock,3,6)
-        m1 <- hPlot(data = closeData,x ="date",y = "%Return",group = 'Stock', type = "line")
+        data2 <- get_data(tickers[1],start_date,end_date)
+        while(i <= 16){
+                data <- get_data(tickers[i],start_date,end_date)
+                data2 <- merge(x = data,y = data2,by = "date")
+                i <- i+1
+        }
+        
+        data3 <- get_data(tickers[1],start_date,end_date)
+        while(i <= 24){
+                data <- get_data(tickers[i],start_date,end_date)
+                data3 <- merge(x = data,y = data3,by = "date")
+                i <- i+1
+        }
+        
+        ##First Data Set Transform
+        data1 <- transform(data1, date = as.numeric(date) * 86400000)
+        data1 <- melt(data = data1,id.vars = "date")
+        data1 <- data1[grep(pattern = "return",x = data1$variable,ignore.case = TRUE),]
+        colnames(data1) <- c("date","Stock","%Return")
+        data1$Stock <- as.character(data1$Stock)
+        data1$Stock <- substr(data1$Stock,3,6)
+        ###First Plot
+        m1 <- hPlot(data = data1,x ="date",y = "%Return",group = 'Stock', type = "line")
         m1$plotOptions(line=list(marker=list(enabled = F)))
-        m1$set(pointSize = 0, lineWidth = 2,width = 750, height = 400)
-        m1$tooltip(shared = FALSE,
+        m1$set(pointSize = 0, lineWidth = 2,width = 750, height = 600)
+        m1$tooltip(shared = TRUE,
                    formatter = "#! function() { 
                    var d = new Date(this.x);
                    d = d.toLocaleDateString();
@@ -78,7 +92,60 @@ compare_indices<- function(start_date = Sys.Date()-months(36),end_date = Sys.Dat
         m1$xAxis(type='datetime')
         m1$yAxis(title = list(text = "Return"),labels = list(format = '{value} %'))
         m1$chart(zoomType = 'x')
-        m1
+        
+        ##Second Data Set Transform
+        data2 <- transform(data2, date = as.numeric(date) * 86400000)
+        data2 <- melt(data = data2,id.vars = "date")
+        data2 <- data2[grep(pattern = "return",x = data2$variable,ignore.case = TRUE),]
+        colnames(data2) <- c("date","Stock","%Return")
+        data2$Stock <- as.character(data2$Stock)
+        data2$Stock <- substr(data2$Stock,3,6)
+        ###Second Plot
+        m2 <- hPlot(data = data2,x ="date",y = "%Return",group = 'Stock', type = "line")
+        m2$plotOptions(line=list(marker=list(enabled = F)))
+        m2$set(pointSize = 0, lineWidth = 2,width = 750, height = 600)
+        m2$tooltip(shared = TRUE,
+                   formatter = "#! function() { 
+                   var d = new Date(this.x);
+                   d = d.toLocaleDateString();
+                   $.each(this.points,function(){
+                   d = '<b>' + d + '</b>';
+                   d= d + '<br/>' + this.series.name + ' :' + this.y + ' %';                     
+                   });
+                   return d;
+}!#")
+        m2$xAxis(type='datetime')
+        m2$yAxis(title = list(text = "Return"),labels = list(format = '{value} %'))
+        m2$chart(zoomType = 'x')
+        
+        ##Third Data Set Transform
+        data3 <- transform(data3, date = as.numeric(date) * 86400000)
+        data3 <- melt(data = data3,id.vars = "date")
+        data3 <- data3[grep(pattern = "return",x = data3$variable,ignore.case = TRUE),]
+        colnames(data3) <- c("date","Stock","%Return")
+        data3$Stock <- as.character(data3$Stock)
+        data3$Stock <- substr(data3$Stock,3,6)
+        ###Third Plot
+        m3 <- hPlot(data = data3,x ="date",y = "%Return",group = 'Stock', type = "line")
+        m3$plotOptions(line=list(marker=list(enabled = F)))
+        m3$set(pointSize = 0, lineWidth = 2,width = 750, height = 600)
+        m3$tooltip(shared = TRUE,
+                   crosshairs = list(T, F),
+                   formatter = "#! function() { 
+                   var d = new Date(this.x);
+                   d = d.toLocaleDateString();
+                   $.each(this.points,function(){
+                   d = '<b>' + d + '</b>';
+                   d= d + '<br/>' + this.series.name + ' :' + this.y + ' %';                     
+                   });
+                   return d;
+}!#")
+        m3$xAxis(type='datetime')
+        m3$yAxis(title = list(text = "Return"),labels = list(format = '{value} %'))
+        m3$chart(zoomType = 'x')
+        m3        
+#         output <- list(m1 = m1,m2 = m2, m3 = m3)
+        
         }
 
 
