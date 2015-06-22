@@ -666,9 +666,12 @@ source("compare_indices.R")
 ##Create Chart JS and HTML with rCharts
 # IndicesPlots <- compare_indices()
 
+
+
 ##Render Plots for output
 output$hc1 <- renderChart2({
-        hc1 <- compare_indices()
+        charts <- compare_indices()
+        hc1 <- charts[[1]]
         return(hc1)
 })
 # output$hc2 <- renderChart({

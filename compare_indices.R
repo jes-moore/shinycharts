@@ -80,12 +80,13 @@ compare_indices<- function(start_date = Sys.Date()-months(24),end_date = Sys.Dat
         m1$plotOptions(line=list(marker=list(enabled = F)))
         m1$set(pointSize = 0, lineWidth = 2,width = 750, height = 600)
         m1$tooltip(shared = TRUE,
+                   crosshairs = list(T,F),
                    formatter = "#! function() { 
                    var d = new Date(this.x);
                    d = d.toLocaleDateString();
                    $.each(this.points,function(){
                    d = '<b>' + d + '</b>';
-                   d= d + '<br/>' + this.series.name + ' :' + this.y + ' %';                     
+                   d= d ' + this.series.name + ' :' + this.y + ' %';                     
                    });
                    return d;
 }!#")
@@ -105,6 +106,7 @@ compare_indices<- function(start_date = Sys.Date()-months(24),end_date = Sys.Dat
         m2$plotOptions(line=list(marker=list(enabled = F)))
         m2$set(pointSize = 0, lineWidth = 2,width = 750, height = 600)
         m2$tooltip(shared = TRUE,
+                   crosshairs = list(T,F),
                    formatter = "#! function() { 
                    var d = new Date(this.x);
                    d = d.toLocaleDateString();
@@ -143,8 +145,8 @@ compare_indices<- function(start_date = Sys.Date()-months(24),end_date = Sys.Dat
         m3$xAxis(type='datetime')
         m3$yAxis(title = list(text = "Return"),labels = list(format = '{value} %'))
         m3$chart(zoomType = 'x')
-        m3        
-#         output <- list(m1 = m1,m2 = m2, m3 = m3)
+         
+        output <- list(m1 = m1,m2 = m2, m3 = m3)
         
         }
 
