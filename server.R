@@ -45,7 +45,54 @@ shinyServer(function(input, output,session){
                 xSubset <-data.frame('date'=date,'open'=open,'high'= high,'low'=low,'close'=close,"volume"=volume)
                 xSubset})
         
-              
+        
+        dataJSON <- reactive({
+                data <- input_data()
+                startdate <- as.Date(as.Date("1970-01-01") + days(input$dates[1]))
+                enddate <- as.Date(as.Date("1970-01-01") + days(input$dates[2]))
+                data <- data[(data$date >= startdate) & (data$date <= enddate),]
+                
+                
+                # format time to Highstocks format
+                data$date  <- as.numeric(as.POSIXct(data$date)) * 1000
+                
+                # convert to data frame with time column
+                data <- data[,1:5]
+                colnames(data) <- c("x", "open", "high", "low", "close")
+                rownames(data) <- NULL
+                # format data frame as JSON
+                return(toJSONArray2(data, json=FALSE))
+        })        
+        
+        # Highcharts Highstocks
+        output$highstock <- renderChart2({
+                p <- Highcharts$new()
+                p$chart(type="candlestick")
+                p$title(text = sprintf('%s Stock Price', input$Ticker))
+                
+                p$series(name = input$Ticker,
+                         data = dataJSON(),
+                         tooltip = list(valueDecimals=2)
+                )
+                
+                # Highstock template to create
+                # var chart = new Highcharts.StockChart({{{ chartParams }}});
+                # rCharts just uses a chart.html template which creates new Highcharts.Chart
+                p$setTemplate(script="highstock.html")
+                
+                # set width and height of the plot and attach it to the DOM
+                p$addParams(height = 400, width=700,navigator = list(enabled = FALSE),scrollbar = list(enabled = FALSE,liveRedraw = FALSE),
+                            rangeSelector = list(enabled = FALSE))
+                
+                #     p$navigator(enabled = FALSE)
+                
+                # save chart as HTML page highstock-test.html for debugging
+                #p$save(destfile = 'highstock-test.html')
+                
+                print(p)
+        })
+        
+        
         cutdata <- reactive({
                 x <- input_data()
                 withProgress(message = 'Computing Indicators', value = 0, {
@@ -437,14 +484,15 @@ output$table <- renderDataTable(DT::datatable(calendar()))
 
 #####################################Short History and Shorting Information#############################
 short_general <- reactive({
-        shorthistory <- read.csv("http://asic.gov.au/Reports/YTD/2015/RR20150511-001-SSDailyYTD.csv",skip=1,fileEncoding = "UTF-16",sep = "\t")
+        shorthistory <- read.csv("http://asic.gov.au/Reports/YTD/2015/RR20150623-001-SSDailyYTD.csv",skip=1,fileEncoding = "UTF-16",sep = "\t",row.names=NULL)
         shorthistory <- shorthistory[-(1:2),]
         shorthistory <- cbind(Row.Names = rownames(shorthistory), shorthistory)
         rownames(shorthistory) <- NULL
         colnames(shorthistory) <- substr(colnames(shorthistory),2,11)
-        colnames(shorthistory)[1] <- "Company"
-        colnames(shorthistory)[2] <- "Ticker"
-        shorthist1 <- shorthistory[,1:2]
+        colnames(shorthistory)[2] <- "Company"
+        colnames(shorthistory)[3] <- "Ticker"
+        shorthist1 <- shorthistory[,2:3]
+        shorthistory <- shorthistory[,-1]
         i=3 ##start at first volume column with short data
         while(i<=length(colnames(shorthistory))){
                 if(i%%2 == 0){
@@ -684,4 +732,31 @@ output$hc1 <- renderChart2({
 # })
 
 
+
+
+
+##########################Get Options from the ASX#######################
+
+output$options <- renderDataTable({
+        source('derivatives.R')
+        withProgress(message = 'Getting Options Data', value = 0, {
+                for (i in 1:5) {##Open
+                        incProgress(1/5)
+                        Sys.sleep(time = 0.1)
+                }
+        })
+        DT::datatable(readDerivatives())
 })
+
+
+
+
+
+})
+
+
+
+
+
+
+
