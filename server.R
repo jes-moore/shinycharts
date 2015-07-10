@@ -45,54 +45,6 @@ shinyServer(function(input, output,session){
                 xSubset <-data.frame('date'=date,'open'=open,'high'= high,'low'=low,'close'=close,"volume"=volume)
                 xSubset})
         
-        
-        dataJSON <- reactive({
-                data <- input_data()
-                startdate <- as.Date(as.Date("1970-01-01") + days(input$dates[1]))
-                enddate <- as.Date(as.Date("1970-01-01") + days(input$dates[2]))
-                data <- data[(data$date >= startdate) & (data$date <= enddate),]
-                
-                
-                # format time to Highstocks format
-                data$date  <- as.numeric(as.POSIXct(data$date)) * 1000
-                
-                # convert to data frame with time column
-                data <- data[,1:5]
-                colnames(data) <- c("x", "open", "high", "low", "close")
-                rownames(data) <- NULL
-                # format data frame as JSON
-                return(toJSONArray2(data, json=FALSE))
-        })        
-        
-        # Highcharts Highstocks
-        output$highstock <- renderChart2({
-                p <- Highcharts$new()
-                p$chart(type="candlestick")
-                p$title(text = sprintf('%s Stock Price', input$Ticker))
-                
-                p$series(name = input$Ticker,
-                         data = dataJSON(),
-                         tooltip = list(valueDecimals=2)
-                )
-                
-                # Highstock template to create
-                # var chart = new Highcharts.StockChart({{{ chartParams }}});
-                # rCharts just uses a chart.html template which creates new Highcharts.Chart
-                p$setTemplate(script="highstock.html")
-                
-                # set width and height of the plot and attach it to the DOM
-                p$addParams(height = 400, width=700,navigator = list(enabled = FALSE),scrollbar = list(enabled = FALSE,liveRedraw = FALSE),
-                            rangeSelector = list(enabled = FALSE))
-                
-                #     p$navigator(enabled = FALSE)
-                
-                # save chart as HTML page highstock-test.html for debugging
-                #p$save(destfile = 'highstock-test.html')
-                
-                print(p)
-        })
-        
-        
         cutdata <- reactive({
                 x <- input_data()
                 withProgress(message = 'Computing Indicators', value = 0, {
@@ -169,6 +121,12 @@ shinyServer(function(input, output,session){
         
         })
 
+        output$sharePrice1<- renderChart2({
+                source('sharePricePlot.R')
+                data <- cutdata()
+                chart <- sharePricePlot(data)
+                return(chart)
+        })
         
 #         output$rchart1 <- renderChart2({
 #                 data <- cutdata()
@@ -180,6 +138,8 @@ shinyServer(function(input, output,session){
 #         })
 
         
+
+
         ##SP plot
         cutdata%>%
                 ggvis(x = ~date,y = ~close) %>%
@@ -746,6 +706,16 @@ output$options <- renderDataTable({
                 }
         })
         DT::datatable(readDerivatives())
+})
+#########################################################################
+
+########################HotCopper Data###################################
+source("readHotCopper.R")
+
+##Render Plots for output
+output$hot <- renderChart2({
+        charts <- plotHotCopper(input$Ticker)
+        return(charts)
 })
 
 

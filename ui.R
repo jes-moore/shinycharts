@@ -17,7 +17,7 @@ library(DT)
 library(ggvis)
 library(dygraphs)
 library(rCharts)
-# options(RCHART_LIB = 'HIGHCHARTS')
+options(RCHART_LIB = 'HIGHCHARTS')
 currencies = sort(c("XAF", "ARS", "AUD", "BSD", "BRL", "BGN", "CAD", "CLP", "CNY", "COP", "HRK",  "CYP", "CZK", "DKK", "LTC", "BTC", "XCD", "EEK", "EUR", "FJD", 
                     "XPF", "GHS", "GTQ", "HNL", "HKD", "HUF", "ISK", "INR", "IDR",  "ILS",  "JMD",  "JPY", "LVL", "LTL", "MYR", "MXN", "MAD", "MMK", "ANG", "NZD", 
                     "NOK", "PKR", "PAB", "PEN", "PHP", "PLN", "Gold","QAR", "RON",  "RUB",  "SAR",  "RSD", "SGD", "ZAR", "KRW", "LKR", "SEK", "CHF", "TWD", "THB", 
@@ -112,7 +112,7 @@ shinyUI(navbarPage(
                                                    ),
                                                    tabPanel("Momentum Indicators",
                                                             value = 2,
-                                                            ggvisOutput("ggvis3"),
+                                                            showOutput("sharePrice1", "Highcharts"),
                                                             conditionalPanel("input.momentum[0] == 1",
                                                                              ggvisOutput("ggvisaroon")
                                                             ),
@@ -137,7 +137,9 @@ shinyUI(navbarPage(
                                                    #                                              
                                                    #                                              ),
                                                    tabPanel("Announcements",value = 8,div(dataTableOutput("announce"),style = "font-size:80%")),
-                                                   tabPanel("Statistics",value = 9,div(dataTableOutput("stats"),style = "font-size:80%"))
+                                                   tabPanel("Statistics",value = 9,div(dataTableOutput("stats"),style = "font-size:80%")),
+                                                   tabPanel("HotCopper",value = 10,showOutput("hot", "Highcharts"))
+                                                   
                                        )
                                )##Close Mainpanel
                  )##Close Sidebar Layout
