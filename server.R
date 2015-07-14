@@ -128,18 +128,6 @@ shinyServer(function(input, output,session){
                 return(chart)
         })
         
-#         output$rchart1 <- renderChart2({
-#                 data <- cutdata()
-#                 data <- transform(data, date = as.character(date))
-#                 m1 <- mPlot(x = "date", y = c("close","MA","EMA","up","dn","mavg"), type = "Line", data = data)
-#                 m1$set(pointSize = 0, lineWidth = 1)
-#                 return(m1)
-#                 
-#         })
-
-        
-
-
         ##SP plot
         cutdata%>%
                 ggvis(x = ~date,y = ~close) %>%
@@ -222,20 +210,29 @@ shinyServer(function(input, output,session){
                 set_options(height = 125, width = 700,resizable = F)%>%
                 bind_shiny("ggvis1","ggvis_ui1")
         
-        #Create RSI Plot
-        cutdata%>%
-                ggvis(x = ~date) %>%
-                layer_lines(y = ~ RSI, stroke = "RSI")%>%
-                layer_lines(y = 70,stroke := "red")%>%
-                layer_lines(y = 50,stroke := "black")%>%
-                layer_lines(y = 30,stroke := "green")%>%
-                #add_axis("x",title = "",orient = "top",title_offset = -10 ,properties = axis_props(labels = list(angle = -90,align = "left")))%>%        
-                hide_axis("x")%>%
-                add_axis("y",tick_padding = -40)%>%
-                scale_datetime("x",round = TRUE,expand = c(0,0),label = NULL,clamp = TRUE)%>%
-                scale_numeric("y",label = "",expand = c(0,0),c(100,0))%>%
-                set_options(height = 125, width = 700,resizable = F)%>%
-                bind_shiny("ggvisrsi","ggvisrsi_ui")
+        ##Create RSI Plot
+        
+        output$rsiPlot<- renderChart2({
+                source('rsiPlot.R')
+                data <- cutdata()
+                chart <- rsiPlot(data)
+                return(chart)
+        })
+        
+#         #Create RSI Plot
+#         cutdata%>%
+#                 ggvis(x = ~date) %>%
+#                 layer_lines(y = ~ RSI, stroke = "RSI")%>%
+#                 layer_lines(y = 70,stroke := "red")%>%
+#                 layer_lines(y = 50,stroke := "black")%>%
+#                 layer_lines(y = 30,stroke := "green")%>%
+#                 #add_axis("x",title = "",orient = "top",title_offset = -10 ,properties = axis_props(labels = list(angle = -90,align = "left")))%>%        
+#                 hide_axis("x")%>%
+#                 add_axis("y",tick_padding = -40)%>%
+#                 scale_datetime("x",round = TRUE,expand = c(0,0),label = NULL,clamp = TRUE)%>%
+#                 scale_numeric("y",label = "",expand = c(0,0),c(100,0))%>%
+#                 set_options(height = 125, width = 700,resizable = F)%>%
+#                 bind_shiny("ggvisrsi","ggvisrsi_ui")
 
         #Create MACD Plot
         cutdata%>%
@@ -251,24 +248,32 @@ shinyServer(function(input, output,session){
                 bind_shiny("ggvismacd","ggvismacd_ui")
 
         ##Create Aroon Plot
-        cutdata%>%
-        ggvis(x = ~date,y = ~close) %>%
-        ######Add Share ,MA, EMA#######
-        #layer_lines(stroke := "grey", strokeWidth := 2)%>%
-        ###############################
-        #######Add Aroon lines#########
-        layer_lines(y = ~ aroonUp, stroke = "AroonUp", strokeWidth := 1.5)%>%
-        layer_lines(y = ~ aroonDn, stroke = "AroonDn", strokeWidth := 1.5)%>%
-        ################################
-        ######Add Normal Y Axis#########
-        add_axis("y",orient = "left",title = "",tick_padding = -40)%>%        
-        scale_numeric("y",expand = c(0.01,0.1),)%>%
-        ################################
-        ######Add Normal X Axis#########
-        hide_axis("x")%>%
-        scale_datetime("x",round = TRUE,expand = c(0,0),label = NULL,clamp = TRUE)%>%        
-        set_options(height = 125, width = 700,resizable = F)%>%
-        bind_shiny("ggvisaroon","ggaroon_ui")
+        
+        output$aroonPlot<- renderChart2({
+                source('aroonPlot.R')
+                data <- cutdata()
+                chart <- aroonPlot(data)
+                return(chart)
+        })
+        
+#         cutdata%>%
+#         ggvis(x = ~date,y = ~close) %>%
+#         ######Add Share ,MA, EMA#######
+#         #layer_lines(stroke := "grey", strokeWidth := 2)%>%
+#         ###############################
+#         #######Add Aroon lines#########
+#         layer_lines(y = ~ aroonUp, stroke = "AroonUp", strokeWidth := 1.5)%>%
+#         layer_lines(y = ~ aroonDn, stroke = "AroonDn", strokeWidth := 1.5)%>%
+#         ################################
+#         ######Add Normal Y Axis#########
+#         add_axis("y",orient = "left",title = "",tick_padding = -40)%>%        
+#         scale_numeric("y",expand = c(0.01,0.1),)%>%
+#         ################################
+#         ######Add Normal X Axis#########
+#         hide_axis("x")%>%
+#         scale_datetime("x",round = TRUE,expand = c(0,0),label = NULL,clamp = TRUE)%>%        
+#         set_options(height = 125, width = 700,resizable = F)%>%
+#         bind_shiny("ggvisaroon","ggaroon_ui")
 
 
 

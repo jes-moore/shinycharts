@@ -5,14 +5,6 @@ sharePricePlot <- function(data){
         a$yAxis(list(list(title = list(text = "Share Price"),max = max (data$close)*1.05,opposite = TRUE)
                 )
         )
-#         layer_lines(x = ~date,y = ~ MA, stroke = "MA")%>%
-#         layer_lines(x = ~date,y = ~ EMA,stroke = "EMA")%>%
-#         layer_lines(stroke := "grey", strokeWidth := 2)%>%
-#         ###############################
-#         #######Add Bollinger Lines######
-#         layer_lines(y = ~ up, stroke := "red", strokeWidth := 1.5)%>%
-#         layer_lines(y = ~ dn, stroke := "red", strokeWidth := 1.5)%>%
-#         layer_lines(y= ~mavg,stroke := "red",strokeWidth :=1.2 )%>%
                 
         a$series(type = "line",name = "MA",
                  data = toJSONArray2(data[,c("date","MA")],json = F,names = F)              
@@ -21,16 +13,16 @@ sharePricePlot <- function(data){
         a$series(type = "line",name = "EMA",
                  data = toJSONArray2(data[,c("date","EMA")],json = F,names = F)              
         )
-        a$series(type = "line",name = "AroonUp",
+        a$series(type = "line",name = "BollUp",
                  data = toJSONArray2(data[,c("date","up")],json = F,names = F),
                  color = "red"              
         )
-        a$series(type = "line",name = "AroonDn",
+        a$series(type = "line",name = "BollDn",
                  data = toJSONArray2(data[,c("date","dn")],json = F,names = F),
                  color = "red"              
         )
 
-        a$series(type = "line",name = "Aroonavg",
+        a$series(type = "line",name = "Bollavg",
                  data = toJSONArray2(data[,c("date","mavg")],json = F,names = F),
                  color = "red"
         )
@@ -56,9 +48,9 @@ sharePricePlot <- function(data){
         a$legend(align = "center left",verticalAlign = "top", 
                  layout = "horizontal",itemMarginTop = 10,x = 20,
                  floating = TRUE,backgroundColor = "white")
-        a$xAxis(type = "datetime")
+        a$xAxis(type = "datetime",opposite = TRUE)
         a$plotOptions(series = list(pointPadding = 0,groupPadding = 0.2,marker = list(enabled=FALSE)))
-        a$set(width = 900, height = 500)
+        a$chart(width = 900, height = 300)
         a
         
 }
