@@ -35,6 +35,7 @@ rsiPlot <- function(data){
         a$xAxis(type = "datetime")
         a$plotOptions(series = list(pointPadding = 0,groupPadding = 0.2,marker = list(enabled=FALSE)))
         a$chart(width = 900, height = 150)
+        a$set(height = 150)
         a
         
 }

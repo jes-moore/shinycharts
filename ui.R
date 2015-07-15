@@ -94,8 +94,7 @@ shinyUI(navbarPage(
                                                         )
                                        )
                                ),
-                               mainPanel(tags$head(
-                                       tags$style('div {padding: 0px; padding: 0px ;}')),
+                               mainPanel(
                                        tabsetPanel(type = "tabs",id = "tab",
                                                    tabPanel("Price Indicators",
                                                             value = 1,
@@ -114,12 +113,12 @@ shinyUI(navbarPage(
                                                    tabPanel("Momentum Indicators",
                                                             value = 2,
                                                             div(showOutput("sharePrice1", "Highcharts")),
-                                                            conditionalPanel("input.momentum[0] == 1",
-                                                                             div(showOutput("aroonPlot", "Highcharts"))
-                                                            ),
-                                                            conditionalPanel("input.momentum[1] == 2 || input.momentum[0] == 2 ",
-                                                                             div(showOutput("rsiPlot", "Highcharts"))
-                                                            ),
+#                                                             conditionalPanel("input.momentum[0] == 1",
+#                                                                              div(showOutput("aroonPlot", "Highcharts"))
+#                                                             ),
+#                                                             conditionalPanel("input.momentum[1] == 2 || input.momentum[0] == 2 ",
+#                                                                              div(showOutput("rsiPlot", "Highcharts"))
+#                                                             ),
                                                             conditionalPanel("input.momentum[1] == 3 || input.momentum[0] == 3 || input.momentum[2] == 3 ",
                                                                              ggvisOutput("ggvismfi")
                                                             )
