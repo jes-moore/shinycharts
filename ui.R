@@ -112,16 +112,7 @@ shinyUI(navbarPage(
                                                    ),
                                                    tabPanel("Momentum Indicators",
                                                             value = 2,
-                                                            div(showOutput("sharePrice1", "Highcharts")),
-#                                                             conditionalPanel("input.momentum[0] == 1",
-#                                                                              div(showOutput("aroonPlot", "Highcharts"))
-#                                                             ),
-#                                                             conditionalPanel("input.momentum[1] == 2 || input.momentum[0] == 2 ",
-#                                                                              div(showOutput("rsiPlot", "Highcharts"))
-#                                                             ),
-                                                            conditionalPanel("input.momentum[1] == 3 || input.momentum[0] == 3 || input.momentum[2] == 3 ",
-                                                                             ggvisOutput("ggvismfi")
-                                                            )
+                                                            div(showOutput("sharePrice1", "Highcharts"))
                                                    ),
                                                    tabPanel("Volume",value = 3,ggvisOutput("ggvissp3"),ggvisOutput("ggvisshort"),ggvisOutput("ggvissar"),ggvisOutput("ggvisvol"),ggvisOutput("ggvisadl")),
                                                    tabPanel("Market Profile",value = 7,plotOutput("profile1",height = 350,width = 900),plotOutput("profile2",height = 350,width = 900)),
