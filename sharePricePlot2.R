@@ -1,30 +1,30 @@
-sharePricePlot <- function(data){
+sharePricePlot2 <- function(data){
         data <- na.exclude(data)
         data <- transform(data, date = as.numeric(as.Date(date)) * 86400000)
         a <- rCharts::Highcharts$new()
         a$yAxis(list(
-                list(title = list(text = "Share Price"),max = max(data$close)*1.05,opposite = TRUE,height = 400,
+                list(title = list(text = "Share Price"),max = max(data$close)*1.05,opposite = TRUE,height = 300,
                      labels = list(
                              style = list(
                                      fontWeight = "bold")
                      )
                 ),
-                list(title = list(text = "RSI"),max = 100,min = 0,opposite = FALSE, 
-                     top = 425,offset = 0,height = 100,
+                list(title = list(text = "MACD"),opposite = FALSE, 
+                     top = 325,offset = 0,height = 75,
                      labels = list(
                              style = list(
                                      fontWeight = "bold")
                      )
                 ),
-                list(title = list(text = "MFI"),max = 100,min = 0,opposite = TRUE, plotBands = list(color = "black",from = 100, to = 110), 
-                     top = 550,offset = 0,height = 100,
+                list(title = list(text = "CHAI"),opposite = TRUE, plotBands = list(color = "black",from = 100, to = 110), 
+                     top = 425,offset = 0,height = 75,
                      labels = list(
                              style = list(
                                      fontWeight = "bold")
                      )
                 ),
-                list(title = list(text = "Aroon"),max = 100,min = 0,opposite = FALSE, 
-                     top = 675,offset = 0,height = 100,
+                list(title = list(text = "Elder"),opposite = FALSE, 
+                     top = 525,offset = 0,height = 75,
                      labels = list(
                              style = list(
                                      fontWeight = "bold")
@@ -43,7 +43,7 @@ sharePricePlot <- function(data){
         a$series(type = "line",name = "MA",
                  data = toJSONArray2(data[,c("date","MA")],json = F,names = F)              
         )
-
+        
         a$series(type = "line",name = "EMA",
                  data = toJSONArray2(data[,c("date","EMA")],json = F,names = F)              
         )
@@ -55,30 +55,40 @@ sharePricePlot <- function(data){
                  data = toJSONArray2(data[,c("date","dn")],json = F,names = F),
                  color = "red"              
         )
-
+        
         a$series(type = "line",name = "Bollavg",
                  data = toJSONArray2(data[,c("date","mavg")],json = F,names = F),
                  color = "red"
         )
         
         
-        a$series(type = "line",name = "RSI",
-                 data = toJSONArray2(data[,c("date","RSI")],json = F,names = F),
+        a$series(type = "line",name = "MACD",
+                 data = toJSONArray2(data[,c("date","MACD")],json = F,names = F),
                  yAxis = 1
         )
         
-        a$series(type = "line",name = "MFI",
-                 data = toJSONArray2(data[,c("date","mfi")],json = F,names = F),
+        a$series(type = "line",name = "SIGNAL",
+                 data = toJSONArray2(data[,c("date","SIGNAL")],json = F,names = F),
+                 yAxis = 1
+        )
+        
+        a$series(type = "line",name = "CHAI/1000",
+                 data = toJSONArray2(data[,c("date","Chai")],json = F,names = F),
                  yAxis = 2
         )
         
-        a$series(type = "line",name = "AroonUp",
-                 data = toJSONArray2(data[,c("date","aroonUp")],json = F,names = F),
+        a$series(type = "line",name = "CHAI SMA/1000",
+                 data = toJSONArray2(data[,c("date","chaiSMA")],json = F,names = F),
+                 yAxis = 2
+        )
+        
+        a$series(type = "line",name = "Elder Bear",
+                 data = toJSONArray2(data[,c("date","Bear")],json = F,names = F),
                  yAxis = 3             
         )
         
-        a$series(type = "line",name = "AroonDn",
-                 data = toJSONArray2(data[,c("date","aroonDn")],json = F,names = F),
+        a$series(type = "line",name = "ElderBull",
+                 data = toJSONArray2(data[,c("date","Bull")],json = F,names = F),
                  yAxis = 3              
         )
         
@@ -100,9 +110,9 @@ sharePricePlot <- function(data){
         a$legend(align = "right",verticalAlign = "center", 
                  layout = "vertical",itemMarginTop = 10,x = 10,
                  floating = FALSE,backgroundColor = "white")
-
+        
         a$plotOptions(series = list(pointPadding = 0,groupPadding = 0.2,marker = list(enabled=FALSE)))
-        a$chart(width = 1200, height = 825,plotBorderWidth = 0.5,plotBorderColor="black")
+        a$chart(width = 1000, height = 650,plotBorderWidth = 0.5,plotBorderColor="black")
         a
         
 }

@@ -128,55 +128,13 @@ shinyServer(function(input, output,session){
                 return(chart)
         })
         
-        ##SP plot
-        cutdata%>%
-                ggvis(x = ~date,y = ~close) %>%
-                ######Add Share ,MA, EMA#######
-                layer_lines(x = ~date,y = ~ MA, stroke = "MA")%>%
-                layer_lines(x = ~date,y = ~ EMA,stroke = "EMA")%>%
-                layer_lines(stroke := "grey", strokeWidth := 2)%>%
-                ###############################
-                #######Add Bollinger Lines######
-                layer_lines(y = ~ up, stroke := "red", strokeWidth := 1.5)%>%
-                layer_lines(y = ~ dn, stroke := "red", strokeWidth := 1.5)%>%
-                layer_lines(y= ~mavg,stroke := "red",strokeWidth :=1.2 )%>%
-                ################################
-                ######Add Normal Y Axis#########
-                add_axis("y",orient = "left",title = "",tick_padding = -40)%>%        
-                scale_numeric("y",expand = c(0.01,0.1),)%>%
-                ################################
-                ######Add Normal X Axis#########
-                add_axis("x",title = "",orient = "top",title_offset = -10 ,properties = axis_props(labels = list(angle = -90,align = "left")))%>%
-                scale_datetime("x",round = TRUE,expand = c(0,0),label = NULL,clamp = TRUE)%>%        
-                ################################
-                ######Add Secondary y Axis#########
-                #add_axis("y",'y2', orient = "right", title= "Volume",grid=F) %>% 
-                #scale_numeric("y","y2", domain = c(0, -1), nice = FALSE) %>%
-                #layer_rects(~volume,prop('y',scale='y2'))%>%
-                set_options(height = 250, width = 700,resizable = F)%>%
-                bind_shiny("ggvis","ggvis_ui")
-
-
-
-
-
-        ##Create a second SP plot
-        cutdata%>%
-                ggvis(x = ~date,y = ~close) %>%
-                ######Add Share ,MA, EMA#######
-                layer_lines(x = ~date,y = ~ MA, stroke = "MA")%>%
-                layer_lines(x = ~date,y = ~ EMA,stroke = "EMA")%>%
-                layer_lines(stroke := "grey", strokeWidth := 2)%>%
-                ###############################
-                 ######Add Normal Y Axis#########
-                add_axis("y",orient = "left",title = "",tick_padding = -40)%>%        
-                scale_numeric("y",expand = c(0.01,0.1),)%>%
-                ################################
-                ######Add Normal X Axis#########
-                add_axis("x",title = "",orient = "top",title_offset = -10 ,properties = axis_props(labels = list(angle = -90,align = "left")))%>%
-                scale_datetime("x",round = TRUE,expand = c(0,0),label = NULL,clamp = TRUE)%>%        
-                set_options(height = 250, width = 700,resizable = F)%>%
-                bind_shiny("ggvis3","ggvis_ui3")
+        output$sharePrice2<- renderChart2({
+                source('sharePricePlot2.R')
+                data <- cutdata()
+                chart <- sharePricePlot2(data)
+                return(chart)
+        })
+        
         
         ##Create a thirdSP plot
         cutdata%>%
@@ -195,114 +153,10 @@ shinyServer(function(input, output,session){
                 set_options(height = 250, width = 700,resizable = F)%>%
                 bind_shiny("ggvissp3","ggvissp3_ui")
         
-        ##Create Elder Rays Plot
-        cutdata%>%
-                ggvis(x = ~date) %>%
-                layer_lines(y = ~ Bear, stroke = "Elder Bear")%>%
-                layer_lines(y = ~ Bull,stroke = "Elder Bull")%>%
-                layer_paths(y=0,stroke := "black")%>%
-                
-                #add_axis("x",title = "",,title_offset = -10 ,properties = axis_props(labels = list(angle = -90, align = "right")))%>%
-                hide_axis("x")%>%
-                add_axis("y",tick_padding = -40)%>%
-                scale_datetime("x",round = TRUE,expand = c(0,0),label = NULL,clamp = TRUE)%>%
-                scale_numeric("y",label = "",expand = c(0.01,0.1))%>%
-                set_options(height = 125, width = 700,resizable = F)%>%
-                bind_shiny("ggvis1","ggvis_ui1")
         
-        ##Create RSI Plot
-        
-        output$rsiPlot<- renderChart2({
-                source('rsiPlot.R')
-                data <- cutdata()
-                chart <- rsiPlot(data)
-                return(chart)
-        })
-        
-#         #Create RSI Plot
-#         cutdata%>%
-#                 ggvis(x = ~date) %>%
-#                 layer_lines(y = ~ RSI, stroke = "RSI")%>%
-#                 layer_lines(y = 70,stroke := "red")%>%
-#                 layer_lines(y = 50,stroke := "black")%>%
-#                 layer_lines(y = 30,stroke := "green")%>%
-#                 #add_axis("x",title = "",orient = "top",title_offset = -10 ,properties = axis_props(labels = list(angle = -90,align = "left")))%>%        
-#                 hide_axis("x")%>%
-#                 add_axis("y",tick_padding = -40)%>%
-#                 scale_datetime("x",round = TRUE,expand = c(0,0),label = NULL,clamp = TRUE)%>%
-#                 scale_numeric("y",label = "",expand = c(0,0),c(100,0))%>%
-#                 set_options(height = 125, width = 700,resizable = F)%>%
-#                 bind_shiny("ggvisrsi","ggvisrsi_ui")
-
-        #Create MACD Plot
-        cutdata%>%
-                ggvis(x = ~date) %>%
-                layer_lines(y = ~ MACD, stroke = "MACD")%>%
-                layer_lines(y = ~SIGNAL,stroke = "Signal")%>%
-                layer_lines(y = 0,stroke := "black")%>%
-                hide_axis("x")%>%
-                add_axis("y",tick_padding = -40)%>%
-                scale_datetime("x",round = TRUE,expand = c(0,0),label = NULL,clamp = TRUE)%>%
-                scale_numeric("y",label = "",expand = c(0.01,0.1))%>%
-                set_options(height = 125, width = 700,resizable = F)%>%
-                bind_shiny("ggvismacd","ggvismacd_ui")
-
-        ##Create Aroon Plot
-        
-        output$aroonPlot<- renderChart2({
-                source('aroonPlot.R')
-                data <- cutdata()
-                chart <- aroonPlot(data)
-                return(chart)
-        })
-        
-#         cutdata%>%
-#         ggvis(x = ~date,y = ~close) %>%
-#         ######Add Share ,MA, EMA#######
-#         #layer_lines(stroke := "grey", strokeWidth := 2)%>%
-#         ###############################
-#         #######Add Aroon lines#########
-#         layer_lines(y = ~ aroonUp, stroke = "AroonUp", strokeWidth := 1.5)%>%
-#         layer_lines(y = ~ aroonDn, stroke = "AroonDn", strokeWidth := 1.5)%>%
-#         ################################
-#         ######Add Normal Y Axis#########
-#         add_axis("y",orient = "left",title = "",tick_padding = -40)%>%        
-#         scale_numeric("y",expand = c(0.01,0.1),)%>%
-#         ################################
-#         ######Add Normal X Axis#########
-#         hide_axis("x")%>%
-#         scale_datetime("x",round = TRUE,expand = c(0,0),label = NULL,clamp = TRUE)%>%        
-#         set_options(height = 125, width = 700,resizable = F)%>%
-#         bind_shiny("ggvisaroon","ggaroon_ui")
 
 
 
-        #Create Chaikan Plot
-        cutdata%>%
-                ggvis(x = ~date) %>%
-                layer_lines(y = ~ Chai, stroke = "Chai Osc/1000")%>%
-                layer_lines(y = ~chaiSMA,stroke = "Signal/1000")%>%
-                layer_lines(y = 0,stroke := "black")%>%
-                add_axis("y",tick_padding = -40)%>%
-                hide_axis("x")%>%
-                scale_datetime("x",round = TRUE,expand = c(0,0),label = NULL,clamp = TRUE)%>%
-                scale_numeric("y",label = "",expand = c(0.01,0.1))%>%
-                set_options(height = 125, width = 700,resizable = F)%>%
-                bind_shiny("ggvischai","ggvischai_ui")
-
-        #Create MFI Plot
-        cutdata%>%
-                ggvis(x = ~date) %>%
-                layer_lines(y = ~ mfi, stroke = "MFI")%>%
-                layer_lines(y = 80,stroke := "red")%>%
-                layer_lines(y = 20,stroke := "green")%>%
-                layer_lines(y = 50,stroke := "black")%>%
-                add_axis("y",tick_padding = -40)%>%
-                hide_axis("x")%>%
-                scale_datetime("x",round = TRUE,expand = c(0,0),label = NULL,clamp = TRUE)%>%
-                scale_numeric("y",label = "",expand = c(0,0),c(100,0))%>%
-                set_options(height = 125, width = 700,resizable = F)%>%
-                bind_shiny("ggvismfi","ggvismfi_ui")
         
         #ADL Plot
         cutdata%>%
@@ -440,12 +294,6 @@ output$table <- renderDataTable(DT::datatable(calendar()))
 #         currency_data3<- xts(x = currency_data3$exchange,order.by = currency_data3$date)
 #         currency_data3
 # })
-# 
-# output$dygraph <- renderDygraph({
-#         dygraph(currency_data3()) %>%
-#                 dyRangeSelector()
-# })
-
 
 #####################################Short History and Shorting Information#############################
 short_general <- reactive({
@@ -724,6 +572,11 @@ output$hot <- renderChart2({
 })
 
 
+output$warrants <- renderDataTable({
+        source("downloadWarrants.R")
+        warrants <- downloadWarrants()
+        DT::datatable(warrants)
+})
 
 
 

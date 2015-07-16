@@ -98,17 +98,7 @@ shinyUI(navbarPage(
                                        tabsetPanel(type = "tabs",id = "tab",
                                                    tabPanel("Price Indicators",
                                                             value = 1,
-                                                            #showOutput("rchart1", "morris"),
-                                                            ggvisOutput("ggvis"),
-                                                            conditionalPanel("input.price[0] == 1",
-                                                                             ggvisOutput("ggvismacd")
-                                                            ),
-                                                            conditionalPanel("input.price[1] == 2 || input.price[0] == 2 ",
-                                                                             ggvisOutput("ggvis1")
-                                                            ),
-                                                            conditionalPanel("input.price[1] == 3 || input.price[0] == 3 || input.price[2] == 3 ",
-                                                                             ggvisOutput("ggvischai")
-                                                            )
+                                                            div(showOutput("sharePrice2", "Highcharts"))
                                                    ),
                                                    tabPanel("Momentum Indicators",
                                                             value = 2,
@@ -164,7 +154,8 @@ shinyUI(navbarPage(
                                                    tabPanel("Upcoming Floats",value = 5,div(dataTableOutput("floats"),style = "font-size:80%")),
                                                    tabPanel("Recent Floats",value = 6,div(dataTableOutput("recent_floats"),style = "font-size:80%")),
                                                    tabPanel("Dividends",value = 7,div(dataTableOutput("dividends"),style = "font-size:80%")),
-                                                   tabPanel("Indices",value = 8,showOutput("hc1", "Highcharts"))
+                                                   tabPanel("Indices",value = 8,showOutput("hc1", "Highcharts")),
+                                                   tabPanel("Warrants",value = 9,div(dataTableOutput("warrants"),style = "font-size:80%"))
                                        )#Close tabsetpanel
                                )##Close Mainpanel2
                  )##Close Bootstrappage
