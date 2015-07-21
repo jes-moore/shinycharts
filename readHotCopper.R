@@ -15,7 +15,7 @@ readHotCopper <- function(Ticker = "ZIP"){
         authorVector <- html_text(authorNodes,trim=TRUE)
         postDates <- data.frame(datetime = dateVector,author = authorVector)
         i=2
-        while(i<= 20){
+        while(i<= 5){
                 url <- paste(sep = "","http://hotcopper.com.au/asx/",Ticker,"/page-",i)
                 html <- rvest::html(url)
                 dateNodes <- html_nodes(x = html, css = ".medium-only") 

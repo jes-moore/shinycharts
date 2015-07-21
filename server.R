@@ -297,7 +297,7 @@ output$table <- renderDataTable(DT::datatable(calendar()))
 
 #####################################Short History and Shorting Information#############################
 short_general <- reactive({
-        shorthistory <- read.csv("http://asic.gov.au/Reports/YTD/2015/RR20150623-001-SSDailyYTD.csv",skip=1,fileEncoding = "UTF-16",sep = "\t",row.names=NULL)
+        shorthistory <- read.csv("http://asic.gov.au/Reports/YTD/2015/RR20150710-001-SSDailyYTD.csv",skip=1,fileEncoding = "UTF-16",sep = "\t",row.names=NULL)
         shorthistory <- shorthistory[-(1:2),]
         shorthistory <- cbind(Row.Names = rownames(shorthistory), shorthistory)
         rownames(shorthistory) <- NULL
