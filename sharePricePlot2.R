@@ -100,7 +100,7 @@ sharePricePlot2 <- function(data){
                    d = d.toLocaleDateString();
                    d = '<strong>' + d + '</strong>';
                    $.each(this.points,function(){
-                   d += '<br>' + this.series.name + ': ' + '<strong>' + this.y + '</strong>';
+                   d += '<br>' + this.series.name + ': ' + '<strong>' + Highcharts.numberFormat(this.y,2,'.') + '</strong>';
                    })
                    return (d);
                    }!#"
@@ -110,7 +110,7 @@ sharePricePlot2 <- function(data){
         a$legend(align = "right",verticalAlign = "center", 
                  layout = "vertical",itemMarginTop = 10,x = 10,
                  floating = FALSE,backgroundColor = "white",
-                 labelFormatter="#! function () {return this.name + ' (click to hide)';}!#")
+                 labelFormatter="#! function () {return this.name;}!#")
         
         a$plotOptions(series = list(pointPadding = 0,groupPadding = 0.2,marker = list(enabled=FALSE)))
         a$chart(zoomType = 'x',width = 1000, height = 650,plotBorderWidth = 0.5,plotBorderColor="black")

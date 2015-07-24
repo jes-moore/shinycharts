@@ -56,8 +56,9 @@ shinyServer(function(input, output,session){
                 startdate <- as.Date(as.Date("1970-01-01") + days(input$dates[1]))
                 enddate <- as.Date(as.Date("1970-01-01") + days(input$dates[2]))
                 x$MA <- SMA(x = x$close,n=input$smaval)
+                x$MA <- round(x$MA,2)
                 x$EMA <- EMA(x = x$close,n=input$emaval)
-                
+                x$EMA <- round(x$EMA,2)
                 ###########Bollinger Bolds####
                 boll <- BBands(HLC = x[,c(3,4,5)],n = input$bollval)
                 x <- cbind(x,boll)

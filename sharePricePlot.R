@@ -90,7 +90,7 @@ sharePricePlot <- function(data){
                    d = d.toLocaleDateString();
                    d = '<strong>' + d + '</strong>';
                    $.each(this.points,function(){
-                   d += '<br>' + this.series.name + ': ' + '<strong>' + this.y + '</strong>';
+                   d += '<br>' + this.series.name + ': ' + '<strong>' + Highcharts.numberFormat(this.y,2,'.') + '</strong>';
                    })
                    return (d);
                    }!#"
