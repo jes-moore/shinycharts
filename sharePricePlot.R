@@ -102,7 +102,7 @@ sharePricePlot <- function(data){
                  floating = FALSE,backgroundColor = "white")
 
         a$plotOptions(series = list(pointPadding = 0,groupPadding = 0.2,marker = list(enabled=FALSE)))
-        a$chart(width = 1000, height = 650,plotBorderWidth = 0.5,plotBorderColor="black")
+        a$chart(zoomType = 'x',width = 1000, height = 650,plotBorderWidth = 0.5,plotBorderColor="black")
         a
         
 }
