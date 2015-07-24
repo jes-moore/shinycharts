@@ -3,28 +3,28 @@ sharePricePlot <- function(data){
         data <- transform(data, date = as.numeric(as.Date(date)) * 86400000)
         a <- rCharts::Highcharts$new()
         a$yAxis(list(
-                list(title = list(text = "Share Price"),max = max(data$close)*1.05,opposite = TRUE,height = 400,
+                list(title = list(text = "Share Price"),max = max(data$close)*1.05,opposite = TRUE,height = 300,
                      labels = list(
                              style = list(
                                      fontWeight = "bold")
                      )
                 ),
                 list(title = list(text = "RSI"),max = 100,min = 0,opposite = FALSE, 
-                     top = 425,offset = 0,height = 100,
+                     top = 325,offset = 0,height = 75,
                      labels = list(
                              style = list(
                                      fontWeight = "bold")
                      )
                 ),
                 list(title = list(text = "MFI"),max = 100,min = 0,opposite = TRUE, plotBands = list(color = "black",from = 100, to = 110), 
-                     top = 550,offset = 0,height = 100,
+                     top = 425,offset = 0,height = 75,
                      labels = list(
                              style = list(
                                      fontWeight = "bold")
                      )
                 ),
                 list(title = list(text = "Aroon"),max = 100,min = 0,opposite = FALSE, 
-                     top = 675,offset = 0,height = 100,
+                     top = 525,offset = 0,height = 75,
                      labels = list(
                              style = list(
                                      fontWeight = "bold")
@@ -102,7 +102,7 @@ sharePricePlot <- function(data){
                  floating = FALSE,backgroundColor = "white")
 
         a$plotOptions(series = list(pointPadding = 0,groupPadding = 0.2,marker = list(enabled=FALSE)))
-        a$chart(width = 1200, height = 825,plotBorderWidth = 0.5,plotBorderColor="black")
+        a$chart(width = 1000, height = 650,plotBorderWidth = 0.5,plotBorderColor="black")
         a
         
 }
