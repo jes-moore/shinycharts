@@ -99,10 +99,10 @@ shinyServer(function(input, output,session){
                 }
                 x$chaiEMA3 <- EMA(x = x$ADL,n=3)
                 x$chaiEMA10 <- EMA(x = x$ADL,n = 10)
-                x$Chai <-(x$chaiEMA3-x$chaiEMA10)/1000
+                x$Chai <-(x$chaiEMA3-x$chaiEMA10)
                 x$chaiSMA <- SMA(x = x$Chai,10)
-                x$ADL <- x$ADL/1000
-                x$volume <- x$volume/1000
+                x$ADL <- x$ADL
+                x$volume <- x$volume
                 #################################
                 
                 ######Aroon Trendline########
@@ -133,6 +133,19 @@ shinyServer(function(input, output,session){
                 source('sharePricePlot2.R')
                 data <- cutdata()
                 chart <- sharePricePlot2(data)
+                return(chart)
+        })
+        
+        output$sharePrice3<- renderChart2({
+                source('sharePricePlot3.R')
+                data <- cutdata()
+                chart <- sharePricePlot3(data)
+                return(chart)
+        })
+        
+        output$intraDay<- renderChart2({
+                source('intraDay.R')
+                chart <- intraDay(input$Ticker)
                 return(chart)
         })
         
@@ -298,7 +311,7 @@ output$table <- renderDataTable(DT::datatable(calendar()))
 
 #####################################Short History and Shorting Information#############################
 short_general <- reactive({
-        shorthistory <- read.csv("http://asic.gov.au/Reports/YTD/2015/RR20150710-001-SSDailyYTD.csv",skip=1,fileEncoding = "UTF-16",sep = "\t",row.names=NULL)
+        shorthistory <- read.csv("http://asic.gov.au/Reports/YTD/2015/RR20150724-001-SSDailyYTD.csv",skip=1,fileEncoding = "UTF-16",sep = "\t",row.names=NULL)
         shorthistory <- shorthistory[-(1:2),]
         shorthistory <- cbind(Row.Names = rownames(shorthistory), shorthistory)
         rownames(shorthistory) <- NULL

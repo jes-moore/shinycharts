@@ -72,12 +72,12 @@ sharePricePlot2 <- function(data){
                  yAxis = 1
         )
         
-        a$series(type = "line",name = "CHAI/1000",
+        a$series(type = "line",name = "CHAI",
                  data = toJSONArray2(data[,c("date","Chai")],json = F,names = F),
                  yAxis = 2
         )
         
-        a$series(type = "line",name = "CHAI SMA/1000",
+        a$series(type = "line",name = "CHAI SMA",
                  data = toJSONArray2(data[,c("date","chaiSMA")],json = F,names = F),
                  yAxis = 2
         )
