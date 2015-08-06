@@ -39,7 +39,7 @@ shinyUI(navbarPage(
                                                         dateRangeInput("dates",h5("Date range"),min = Sys.Date()-years(5),max = Sys.Date(), start = "2015-01-01",end = as.character(Sys.Date()+days(1)))
                                        ),
                                        conditionalPanel("input.tab==1 || input.tab==2",
-                                                        sliderInput("smaval",label = h5("Simple Moving Average Days"),min = 1,max = 100,value = 1)
+                                                        sliderInput("smaval",label = h5("Simple Moving Average Days"),min = 1,max = 100,value = 100)
                                        ),
                                        
                                        conditionalPanel("input.tab==1",
@@ -47,7 +47,7 @@ shinyUI(navbarPage(
                                        ),
                                        
                                        conditionalPanel("input.tab==1 || input.tab==2",
-                                                        sliderInput("emaval",label = h5("Exponential MA Days"),min = 1,max = 100,value = 1)
+                                                        sliderInput("emaval",label = h5("Exponential MA Days"),min = 1,max = 100,value = 100)
                                        ),
                                        
                                        conditionalPanel("input.tab==2",
