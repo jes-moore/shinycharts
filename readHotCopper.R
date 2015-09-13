@@ -26,7 +26,8 @@ readHotCopper <- function(Ticker = "ZIP"){
                 postDates <- rbind(postDates,dateDataTable)
                 i = i+1
         }
-        postDates$Stripped <- strptime(x = postDates$datetime,format = "%d/%m/%y %H:%M")
+        postDates$Stripped <- strptime(x = postDates$datetime,format = "%d/%m/%y")
+        postDates$Stripped[is.na(postDates$Stripped)] <- strptime(Sys.Date(),format = "%Y-%m-%d")
         postDates$Date <- as.Date(postDates$Stripped)
  
         unique <- postDates[,c(4,2)]

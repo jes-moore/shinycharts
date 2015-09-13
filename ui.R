@@ -122,6 +122,7 @@ shinyUI(navbarPage(
                                                    #                                              
                                                    #                                              ),
                                                    tabPanel("Announcements",value = 8,div(dataTableOutput("announce"),style = "font-size:80%")),
+                                                   tabPanel("Option Interest",value = 11,div(dataTableOutput("openInterest"),style = "font-size:80%")),
                                                    tabPanel("Statistics",value = 9,div(dataTableOutput("stats"),style = "font-size:80%")),
                                                    tabPanel("HotCopper",value = 10,showOutput("hot", "Highcharts"))
                                                    

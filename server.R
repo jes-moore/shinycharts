@@ -166,7 +166,7 @@ calendar <-reactive({
 output$table <- renderDataTable(DT::datatable(calendar()))
 #############################################################################################
        
-# ##################################Currency Pain 1##############################################
+# ##################################Currency Pain 1##############################################q
 # readcurrency_data1 <-reactive({
 #         currency_data1 <- getSymbols(paste(input$base,"/",input$comp1,sep = ""),src="oanda",env = .GlobalEnv,return.class = "data.frame",auto.assign=FALSE)
 #         currency_data1 <- data.frame(date = as.Date(rownames(currency_data1)),exchange = currency_data1)
@@ -252,7 +252,7 @@ output$table <- renderDataTable(DT::datatable(calendar()))
 
 #####################################Short History and Shorting Information#############################
 short_general <- reactive({
-        shorthistory <- read.csv("http://asic.gov.au/Reports/YTD/2015/RR20150729-001-SSDailyYTD.csv",skip=1,fileEncoding = "UTF-16",sep = "\t",row.names=NULL)
+        shorthistory <- read.csv("http://asic.gov.au/Reports/YTD/2015/RR20150901-001-SSDailyYTD.csv",skip=1,fileEncoding = "UTF-16",sep = "\t",row.names=NULL)
         shorthistory <- shorthistory[-(1:2),]
         shorthistory <- cbind(Row.Names = rownames(shorthistory), shorthistory)
         rownames(shorthistory) <- NULL
@@ -492,7 +492,6 @@ output$hc1 <- renderChart2({
 
 
 ##########################Get Options from the ASX#######################
-
 output$options <- renderDataTable({
         source('derivatives.R')
         withProgress(message = 'Getting Options Data', value = 0, {
@@ -502,6 +501,19 @@ output$options <- renderDataTable({
                 }
         })
         DT::datatable(readDerivatives())
+})
+#########################################################################
+
+##########################Open interest for a stock#######################
+output$openInterest <- renderDataTable({
+        source('openInterest.R')
+        withProgress(message = 'Getting Options Data', value = 0, {
+                for (i in 1:5) {##Open
+                        incProgress(1/5)
+                        Sys.sleep(time = 0.1)
+                }
+        })
+        DT::datatable(openInterest(input$Ticker))
 })
 #########################################################################
 

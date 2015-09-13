@@ -42,11 +42,11 @@ sharePricePlot3 <- function(data){
         )
         
         a$series(type = "line",name = "ADL",
-                 data = toJSONArray2(data[,c("date","ADL")],json = F,names = F),              
+                 data = toJSONArray2(data[,c("date","volume")],json = F,names = F),              
                  yAxis = 2
         )
         a$series(type = "line",name = "Volume",
-                 data = toJSONArray2(data[,c("date","volume")],json = F,names = F),
+                 data = toJSONArray2(data[,c("date","ADL")],json = F,names = F),
                  yAxis = 1              
         )
         
