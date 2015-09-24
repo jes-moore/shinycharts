@@ -33,13 +33,13 @@ shinyUI(navbarPage(
                  sidebarLayout(fluid = TRUE,
                                sidebarPanel(
                                        width = 3,
-                                       textInput("Ticker",label = h5("Stock Ticker XYZ"),value = "KAR"),
+                                       textInput("Ticker",label = h5("Stock Ticker XYZ"),value = "AWE"),
                                        #                                 actionButton("changeticker","Update"),
                                        conditionalPanel("input.tab==1 || input.tab==2 || input.tab==3",
                                                         dateRangeInput("dates",h5("Date range"),min = Sys.Date()-years(5),max = Sys.Date(), start = "2015-01-01",end = as.character(Sys.Date()+days(1)))
                                        ),
                                        conditionalPanel("input.tab==1 || input.tab==2",
-                                                        sliderInput("smaval",label = h5("Simple Moving Average Days"),min = 1,max = 100,value = 1)
+                                                        sliderInput("smaval",label = h5("Simple Moving Average Days"),min = 1,max = 100,value = 100)
                                        ),
                                        
                                        conditionalPanel("input.tab==1",
@@ -47,7 +47,7 @@ shinyUI(navbarPage(
                                        ),
                                        
                                        conditionalPanel("input.tab==1 || input.tab==2",
-                                                        sliderInput("emaval",label = h5("Exponential MA Days"),min = 1,max = 100,value = 1)
+                                                        sliderInput("emaval",label = h5("Exponential MA Days"),min = 1,max = 100,value = 100)
                                        ),
                                        
                                        conditionalPanel("input.tab==2",
@@ -104,7 +104,11 @@ shinyUI(navbarPage(
                                                             value = 2,
                                                             div(showOutput("sharePrice1", "Highcharts"))
                                                    ),
-                                                   tabPanel("Volume",value = 3,ggvisOutput("ggvissp3"),ggvisOutput("ggvisshort"),ggvisOutput("ggvissar"),ggvisOutput("ggvisvol"),ggvisOutput("ggvisadl")),
+                                                   tabPanel("Volume",
+                                                            value = 12,
+                                                            div(showOutput("sharePrice3", "Highcharts"))
+                                                   ),
+                                                   tabPanel("Intraday",value = 11,div(showOutput("intraDay", "Highcharts"))),
                                                    tabPanel("Market Profile",value = 7,plotOutput("profile1",height = 350,width = 900),plotOutput("profile2",height = 350,width = 900)),
                                                    #                                     tabPanel("Foreign Exchange",value = 5,
                                                    #                                              h5(textOutput("ct1")),
@@ -118,6 +122,7 @@ shinyUI(navbarPage(
                                                    #                                              
                                                    #                                              ),
                                                    tabPanel("Announcements",value = 8,div(dataTableOutput("announce"),style = "font-size:80%")),
+                                                   tabPanel("Option Interest",value = 11,div(dataTableOutput("openInterest"),style = "font-size:80%")),
                                                    tabPanel("Statistics",value = 9,div(dataTableOutput("stats"),style = "font-size:80%")),
                                                    tabPanel("HotCopper",value = 10,showOutput("hot", "Highcharts"))
                                                    

@@ -99,10 +99,10 @@ shinyServer(function(input, output,session){
                 }
                 x$chaiEMA3 <- EMA(x = x$ADL,n=3)
                 x$chaiEMA10 <- EMA(x = x$ADL,n = 10)
-                x$Chai <-(x$chaiEMA3-x$chaiEMA10)/1000
+                x$Chai <-(x$chaiEMA3-x$chaiEMA10)
                 x$chaiSMA <- SMA(x = x$Chai,10)
-                x$ADL <- x$ADL/1000
-                x$volume <- x$volume/1000
+                x$ADL <- x$ADL
+                x$volume <- x$volume
                 #################################
                 
                 ######Aroon Trendline########
@@ -136,64 +136,18 @@ shinyServer(function(input, output,session){
                 return(chart)
         })
         
+        output$sharePrice3<- renderChart2({
+                source('sharePricePlot3.R')
+                data <- cutdata()
+                chart <- sharePricePlot3(data)
+                return(chart)
+        })
         
-        ##Create a thirdSP plot
-        cutdata%>%
-                ggvis(x = ~date,y = ~close) %>%
-                ######Add Share ,MA, EMA#######
-                layer_lines(stroke = "Share Price", strokeWidth := 2)%>%
-                layer_points(y = ~sar1,fill := "darkred",size := 10)%>%
-                ###############################
-                ######Add Normal Y Axis#########
-                add_axis("y",orient = "left",title = "",tick_padding = -40)%>%        
-                scale_numeric("y",expand = c(0.01,0.1),)%>%
-                ################################
-                ######Add Normal X Axis#########
-                add_axis("x",title = "",orient = "top",title_offset = -10 ,properties = axis_props(labels = list(angle = -90,align = "left")))%>%
-                scale_datetime("x",round = TRUE,expand = c(0,0),label = NULL,clamp = TRUE)%>%        
-                set_options(height = 250, width = 700,resizable = F)%>%
-                bind_shiny("ggvissp3","ggvissp3_ui")
-        
-        
-
-
-
-        
-        #ADL Plot
-        cutdata%>%
-                ggvis(x = ~date) %>%
-                layer_lines(y = ~ ADL, stroke = "ADL/1000")%>%
-                hide_axis("x")%>%
-                add_axis("y",tick_padding = -40)%>%
-                scale_datetime("x",round = TRUE,expand = c(0,0),label = NULL,clamp = TRUE)%>%
-                scale_numeric("y",label = "",expand = c(0,0))%>%
-                set_options(height = 125, width = 700,resizable = F)%>%
-                bind_shiny("ggvisadl","ggvisadl_ui")
-
-        #Create Volume plot
-        cutdata%>%
-                ggvis(x = ~date) %>%
-                layer_rects(y = ~volume, y2 = 0, fill = "Volume/1000" , width := 5)%>%
-                hide_axis("x")%>%
-                add_axis("y",tick_padding = -40)%>%
-                #add_axis("x",title = "",orient = "top",title_offset = -10 ,properties = axis_props(labels = list(angle = -90,align = "left")))%>%
-                scale_datetime("x",expand = c(0,0))%>%
-                scale_numeric("y",label = "",expand = c(0,0))%>%
-                set_options(height = 125, width = 700,resizable = F)%>%
-                bind_shiny("ggvisvol","ggvisvol_ui")
-        
-        #SAR Plot
-        cutdata%>%
-                ggvis(x = ~date) %>%
-                layer_lines(y = ~ sar, stroke = "SAR")%>%
-                layer_lines(y = 0,stroke := "black")%>%
-                add_axis("y",tick_padding = -40)%>%
-                hide_axis("x")%>%
-                scale_datetime("x",round = TRUE,expand = c(0,0),label = NULL,clamp = TRUE)%>%
-                scale_numeric("y",label = "",expand = c(0,0))%>%
-                set_options(height = 125, width = 700,resizable = F)%>%
-                bind_shiny("ggvissar","ggvissar_ui")
-        
+        output$intraDay<- renderChart2({
+                source('intraDay.R')
+                chart <- intraDay(input$Ticker)
+                return(chart)
+        })
         
 
 #############################Economic Calendar Data##########################################
@@ -212,7 +166,7 @@ calendar <-reactive({
 output$table <- renderDataTable(DT::datatable(calendar()))
 #############################################################################################
        
-# ##################################Currency Pain 1##############################################
+# ##################################Currency Pain 1##############################################q
 # readcurrency_data1 <-reactive({
 #         currency_data1 <- getSymbols(paste(input$base,"/",input$comp1,sep = ""),src="oanda",env = .GlobalEnv,return.class = "data.frame",auto.assign=FALSE)
 #         currency_data1 <- data.frame(date = as.Date(rownames(currency_data1)),exchange = currency_data1)
@@ -298,7 +252,7 @@ output$table <- renderDataTable(DT::datatable(calendar()))
 
 #####################################Short History and Shorting Information#############################
 short_general <- reactive({
-        shorthistory <- read.csv("http://asic.gov.au/Reports/YTD/2015/RR20150720-001-SSDailyYTD.csv",skip=1,fileEncoding = "UTF-16",sep = "\t",row.names=NULL)
+        shorthistory <- read.csv("http://asic.gov.au/Reports/YTD/2015/RR20150917-001-SSDailyYTD.csv",skip=1,fileEncoding = "UTF-16",sep = "\t",row.names=NULL)
         shorthistory <- shorthistory[-(1:2),]
         shorthistory <- cbind(Row.Names = rownames(shorthistory), shorthistory)
         rownames(shorthistory) <- NULL
@@ -335,18 +289,6 @@ short_specific <- reactive ({
         
 })
 
-#Short Plot
-short_specific%>%
-        ggvis(x = ~variable) %>%
-        layer_lines(y = ~ value, stroke = "Short % of Stock Volume")%>%
-        add_axis("y",tick_padding = -40)%>%
-        hide_axis("x")%>%
-        scale_datetime("x",round = TRUE,expand = c(0,0),label = NULL,clamp = TRUE)%>%
-        scale_numeric("y",label = "",expand = c(0,0))%>%
-        set_options(height = 125, width = 700,resizable = F)%>%
-        add_tooltip(all_values,"hover")%>%
-        #add_tooltip(all_values,"click")%>%
-        bind_shiny("ggvisshort","ggvisshort_ui")
 
 all_values <- function(x) {
         if(is.null(x)) return(NULL)
@@ -550,7 +492,6 @@ output$hc1 <- renderChart2({
 
 
 ##########################Get Options from the ASX#######################
-
 output$options <- renderDataTable({
         source('derivatives.R')
         withProgress(message = 'Getting Options Data', value = 0, {
@@ -560,6 +501,19 @@ output$options <- renderDataTable({
                 }
         })
         DT::datatable(readDerivatives())
+})
+#########################################################################
+
+##########################Open interest for a stock#######################
+output$openInterest <- renderDataTable({
+        source('openInterest.R')
+        withProgress(message = 'Getting Options Data', value = 0, {
+                for (i in 1:5) {##Open
+                        incProgress(1/5)
+                        Sys.sleep(time = 0.1)
+                }
+        })
+        DT::datatable(openInterest(input$Ticker))
 })
 #########################################################################
 

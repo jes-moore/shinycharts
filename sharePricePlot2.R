@@ -9,14 +9,15 @@ sharePricePlot2 <- function(data){
                                      fontWeight = "bold")
                      )
                 ),
-                list(title = list(text = "MACD"),opposite = FALSE, 
+                list(title = list(text = "MACD"),max = max(data$MACD)*1.05,min = min(data$MACD)*0.95,opposite = FALSE, 
                      top = 325,offset = 0,height = 75,
                      labels = list(
                              style = list(
                                      fontWeight = "bold")
                      )
                 ),
-                list(title = list(text = "CHAI"),opposite = TRUE, plotBands = list(color = "black",from = 100, to = 110), 
+                list(title = list(text = "CHAI"),max = max(data$Chai)*1.05,min = min(data$Chai)*0.95,
+                     opposite = TRUE, plotBands = list(color = "black",from = 100, to = 110), 
                      top = 425,offset = 0,height = 75,
                      labels = list(
                              style = list(
@@ -72,12 +73,12 @@ sharePricePlot2 <- function(data){
                  yAxis = 1
         )
         
-        a$series(type = "line",name = "CHAI/1000",
+        a$series(type = "line",name = "CHAI",
                  data = toJSONArray2(data[,c("date","Chai")],json = F,names = F),
                  yAxis = 2
         )
         
-        a$series(type = "line",name = "CHAI SMA/1000",
+        a$series(type = "line",name = "CHAI SMA",
                  data = toJSONArray2(data[,c("date","chaiSMA")],json = F,names = F),
                  yAxis = 2
         )
